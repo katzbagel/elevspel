@@ -50,6 +50,7 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 .opt{background:#fff;border:3px solid var(--line);border-radius:14px;padding:10px;min-height:56px;text-align:center;transition:border-color .2s,background .2s}
 .opt:active{transform:scale(.98)}
 .opt svg{width:100%;max-width:120px;height:auto;display:block;margin:0 auto}
+.opt img.hm{width:100%;max-width:170px;aspect-ratio:1;display:block;margin:0 auto;border-radius:10px}
 .opt .lbl{display:block;font-weight:700;font-size:17px;min-height:1.4em}
 .opt .lbl.hidden{visibility:hidden}
 .opt .fack{display:block;font-size:14px;color:var(--soft);font-weight:400}
@@ -227,7 +228,11 @@ const IKON = {
   backen: `<path ${S} fill="#e6eef2" d="M10 50c0-10 14-16 34-16h20c16 0 26 8 26 18s-10 16-26 16H34c-14 0-24-6-24-18z"/><ellipse ${S} fill="#cfdbe2" cx="58" cy="51" rx="20" ry="9"/><path ${S} fill="#e6eef2" d="M10 50c-2 6 0 10 6 12"/>`,
   hink: `<path ${S} fill="#a8c08f" d="M22 36h56l-7 50H29z"/><ellipse ${S} fill="#8aa774" cx="50" cy="36" rx="28" ry="6"/><path ${S} fill="none" d="M22 36c0-26 56-26 56 0"/>`
 };
-const ikon = n => `<svg viewBox="0 0 100 100" aria-hidden="true">${IKON[n] || ""}</svg>`;
+/* Föremål med egen bild i bilder/hm_<namn>.webp. Saknas namnet här används SVG-ikonen ovan. */
+const HM_BILDER = ["backen", "duschpall", "hink", "kryckor", "nattstol", "rollator", "rullstol", "sockor", "stodstrumpor", "tofflor", "urinflaska"];
+const ikon = n => HM_BILDER.includes(n)
+  ? `<img class="hm" src="bilder/hm_${n}.webp" alt="" draggable="false">`
+  : `<svg viewBox="0 0 100 100" aria-hidden="true">${IKON[n] || ""}</svg>`;
 
 /* Kroppsfigur för typ "visa" – punkter på höger ben (från betraktaren) */
 const KROPP_PUNKTER = { hoft: [124, 162], kna: [115, 236], fotled: [114, 296] };
