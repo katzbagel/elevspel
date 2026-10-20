@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Skillnaden</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+<style>
+/* Layout: en smal kolumn, en uppgift i taget. Skrubbgrönt med överstrykningsgult för det ord som ska bedömas. */
+:root{
+  --bg:#eef2f0; --surface:#ffffff; --ink:#17231f; --muted:#56655f; --line:#cfdad5;
+  --scrub:#1f5f55; --scrub-ink:#ffffff; --mark:#ffe27a; --mark-ink:#2a2300;
+  --ok:#1d7a46; --ok-bg:#e1f3e8; --bad:#b03a2e; --bad-bg:#fbe5e2;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1715; --surface:#18231f; --ink:#e6eeea; --muted:#9db0a8; --line:#2c3b35;
+  --scrub:#5fb3a3; --scrub-ink:#08201b; --mark:#6b5a12; --mark-ink:#fff4c4;
+  --ok:#6fd39a; --ok-bg:#163526; --bad:#f08b80; --bad-bg:#3a1c19; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1715; --surface:#18231f; --ink:#e6eeea; --muted:#9db0a8; --line:#2c3b35;
+  --scrub:#5fb3a3; --scrub-ink:#08201b; --mark:#6b5a12; --mark-ink:#fff4c4;
+  --ok:#6fd39a; --ok-bg:#163526; --bad:#f08b80; --bad-bg:#3a1c19; color-scheme:dark}
+
+*{box-sizing:border-box}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{background:var(--bg);color:var(--ink)}
+body{margin:0;font-family:var(--body);font-size:1.0625rem;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+[hidden]{display:none!important}
+.wrap{max-width:620px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1,h2{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(2rem,8vw,2.75rem);font-weight:800;color:var(--scrub)}
+h2{font-size:1.35rem;font-weight:600}
+p{margin:0}
+.lead{color:var(--muted);max-width:52ch}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--scrub);outline-offset:2px}
+
+/* Meny */
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:5px}
+.tab{background:none;border:none;border-radius:8px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.2}
+.tab .n{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.tab .t{font-family:var(--display);font-weight:600;font-size:1rem;text-align:center}
+.tab[aria-selected="true"]{background:var(--scrub);color:var(--scrub-ink)}
+.tab[aria-selected="true"] .n{color:inherit;opacity:.8}
+.modedesc{color:var(--muted)}
+.groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.g{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:14px 14px 12px;text-align:left;display:flex;flex-direction:column;gap:6px;min-height:104px}
+.g:hover:not(:disabled){border-color:var(--scrub)}
+.g:disabled{cursor:default;background:transparent;border-style:dashed}
+.g:disabled .pair{color:var(--muted)}
+.g .pair{font-family:var(--display);font-weight:600;font-size:1.15rem;line-height:1.2;overflow-wrap:anywhere}
+.g .meta{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:auto;font-size:.85rem;color:var(--muted)}
+.chip{font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:99px;background:var(--ok-bg);color:var(--ok);white-space:nowrap}
+.g.mix{background:var(--scrub);color:var(--scrub-ink);border-color:var(--scrub)}
+.g.mix .meta{color:inherit;opacity:.85}
+.teacher{font-size:.85rem;color:var(--muted);border:1.5px dashed var(--line);border-radius:10px;padding:8px 12px}
+
+/* Spel */
+.bar{display:flex;align-items:center;gap:12px;font-size:.95rem}
+.back{background:none;border:none;padding:6px 0;color:var(--scrub);font-weight:700;white-space:nowrap}
+.prog{flex:1;height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--scrub);transition:width .3s}
+.score{font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
+.ask{font-family:var(--display);font-weight:600;font-size:1.2rem}
+.card{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:22px 20px;display:flex;gap:14px;align-items:flex-start}
+.card .txt{flex:1;min-width:0;font-size:clamp(1.15rem,4.6vw,1.4rem);line-height:1.45}
+.card .term{font-family:var(--display);font-weight:800;font-size:clamp(1.6rem,7vw,2.2rem);color:var(--scrub);line-height:1.1;display:block;margin-bottom:4px}
+mark{background:var(--mark);color:var(--mark-ink);padding:0 3px;border-radius:3px}
+.gap{display:inline-block;min-width:4.5em;border-bottom:3px solid var(--scrub);margin:0 2px;line-height:1.1;text-align:center;font-weight:700;color:var(--scrub)}
+.speak{flex:none;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);background:var(--bg);display:grid;place-items:center;color:var(--scrub)}
+.speak svg{width:22px;height:22px}
+.answers{display:grid;gap:12px}
+.answers.m1{grid-template-columns:1fr 1fr}
+.answers.m2{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.answers.m3{grid-template-columns:1fr}
+.ans{background:var(--surface);border:2px solid var(--scrub);border-radius:12px;padding:14px 12px;min-height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:0}
+.m1 .ans{min-height:84px}
+.ans .w{font-family:var(--display);font-weight:600;font-size:clamp(1.05rem,4.6vw,1.35rem);overflow-wrap:anywhere;text-align:center}
+.m3 .ans{align-items:flex-start;text-align:left;padding:14px 16px}
+.m3 .ans .w{font-family:var(--body);font-weight:400;font-size:1.05rem;text-align:left;line-height:1.45}
+.ans .v{font-size:.9rem;color:var(--muted);text-align:center}
+.ans:hover:not(:disabled){background:var(--scrub);color:var(--scrub-ink)}
+.ans:hover:not(:disabled) .v{color:inherit}
+.ans:hover:not(:disabled) mark{background:var(--scrub-ink);color:var(--scrub)}
+.ans:disabled{cursor:default}
+.ans.right{border-color:var(--ok);background:var(--ok-bg)}
+.ans.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.ans.dim{opacity:.45}
+.key{font-size:.75rem;color:var(--muted);letter-spacing:.05em}
+.hint{align-self:flex-start;background:none;border:1.5px dashed var(--line);border-radius:99px;padding:6px 14px;font-size:.9rem;color:var(--muted)}
+.hint:disabled{opacity:.6;cursor:default}
+.hintbox{font-size:.95rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 16px}
+.hintbox b{color:var(--ink)}
+.fb{border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+.fb.ok{background:var(--ok-bg)} .fb.bad{background:var(--bad-bg)}
+.fb strong{font-family:var(--display);font-size:1.15rem}
+.fb.ok strong{color:var(--ok)} .fb.bad strong{color:var(--bad)}
+.fb .rule{font-size:.95rem;color:var(--muted);border-top:1px solid var(--line);padding-top:8px}
+.fb .small{font-size:.95rem;color:var(--muted)}
+.next{align-self:flex-end;background:var(--scrub);color:var(--scrub-ink);border:none;border-radius:10px;padding:12px 22px;font-weight:700;font-size:1rem}
+
+/* Resultat */
+.big{font-family:var(--display);font-weight:800;font-size:3rem;color:var(--scrub);line-height:1}
+.missed{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.missed li{background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:10px 14px}
+.missed .a{font-weight:700;color:var(--scrub)}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.btn2{background:var(--surface);border:1.5px solid var(--scrub);color:var(--scrub);border-radius:10px;padding:12px 20px;font-weight:700}
+@media (prefers-reduced-motion:reduce){.prog i{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+/* ============================================================
+   INNEHÅLL – här redigerar du ord, situationer och meningar.
+
+   ord:     [ordet, vardagsord, fråga i läge 3]
+   fraga:   frågan i läge 1
+   regel:   visas när eleven svarar fel
+   sortera: läge 1 och 3. [situation, rätt ord (0 eller 1), förklaring]
+            <mark>...</mark> markerar det som ska bedömas.
+   fyllI:   läge 2. [mening med ___, [rätt form, fel form, fel form], förklaring]
+            Det första alternativet är alltid det rätta. Ordningen blandas i spelet.
+   ============================================================ */
+const GRUPPER = [
+ {id:"symtom",
+  ord:[["symtom","besvär","I vilken situation handlar det om ett symtom?"],
+       ["tecken","det man ser","I vilken situation handlar det om ett tecken?"]],
+  fraga:"Är det här ett symtom eller ett tecken?",
+  regel:"Symtom är något som patienten själv känner och berättar om. Tecken är något som du kan se eller mäta.",
+  sortera:[
+   ["Patienten säger att hon blir yr när hon reser sig.",0,"Det är patienten som känner yrseln och berättar om den."],
+   ["Saturationen är 91 % på rumsluft.",1,"Saturation är ett värde som du mäter."],
+   ["Patienten berättar att det värker i magen.",0,"Värken känner bara patienten själv."],
+   ["Du ser att anklarna är svullna.",1,"Svullnaden kan du se med egna ögon."],
+   ["Temperaturen är 38,6 °C.",1,"Temperatur är något som du mäter."],
+   ["Patienten säger att hon mår illa.",0,"Illamående känner patienten och berättar om."],
+   ["Huden är blek och känns kall.",1,"Det ser du och känner med händerna. Patienten behöver inte säga något."],
+   ["Patienten säger att han inte kan sova för att han är orolig.",0,"Oron är något som patienten själv upplever och berättar om."],
+   ["Pulsen är 118 slag per minut.",1,"Pulsen räknar du. Det är ett mätvärde."],
+   ["Patienten klagar på att det kliar på ryggen.",0,"Klådan känner bara patienten."]
+  ],
+  fyllI:[
+   ["Patientens ___ är illamående och yrsel.",["symtom","tecken","symtomet"],"Illamående och yrsel känner patienten själv. Det är flera symtom, och plural heter också symtom."],
+   ["Du ser att läpparna är blå. Det är ett ___ på syrebrist.",["tecken","symtom","tecknet"],"Du ser färgen med egna ögon. Efter ”ett” kommer obestämd form: ett tecken."],
+   ["Patienten beskriver sina ___ för läkaren: huvudvärk och trötthet.",["symtom","symtomen","tecken"],"Huvudvärk och trötthet känner patienten. Efter ”sina” används obestämd form: sina symtom."],
+   ["___ försvann när patienten fick smärtlindring. Hon har inte längre ont.",["Symtomet","Tecknet","Symtom"],"Smärta är något patienten känner. Det handlar om ett bestämt symtom, därför bestämd form: symtomet."],
+   ["Ett lågt blodtryck kan vara ett ___ på uttorkning.",["tecken","symtom","tecknen"],"Blodtrycket mäter du. Efter ”ett” kommer obestämd form singular: ett tecken."],
+   ["Vid inspektion ser du ___ på trycksår: en rodnad som inte bleknar.",["tecken","symtom","tecknet"],"Rodnaden ser du. ”Tecken på” är ett vanligt uttryck."]
+  ]},
+ {id:"observera",
+  ord:[["observera","lägga märke till","I vilken situation observerar någon?"],
+       ["bedöma","avgöra","I vilken situation bedömer någon?"]],
+  fraga:"Observerar eller bedömer personen?",
+  regel:"Att observera är att se, lyssna och mäta, utan att dra slutsatser. Att bedöma är att avgöra vad det man har observerat betyder.",
+  sortera:[
+   ["Du räknar andningen till 24 andetag per minut.",0,"Du räknar. Du drar ingen slutsats om vad det betyder."],
+   ["Sjuksköterskan kommer fram till att patienten har tecken på infektion.",1,"”Kommer fram till” betyder att hon drar en slutsats."],
+   ["Du ser att patienten bara har ätit halva portionen.",0,"Du lägger märke till hur mycket som är kvar på tallriken."],
+   ["Sjuksköterskan avgör att patienten behöver kontrolleras varje timme.",1,"Hon avgör vad som ska hända utifrån det hon vet."],
+   ["Du märker att patienten svarar långsammare än i morse.",0,"Du lägger märke till en förändring. Vad den beror på avgör någon annan."],
+   ["Läkaren drar slutsatsen att andnöden beror på hjärtsvikt.",1,"En slutsats om orsaken är en bedömning."],
+   ["Du läser av blodtrycket: 92/58.",0,"Du mäter och läser av ett värde."],
+   ["Utifrån NEWS-poängen avgör sjuksköterskan att läkaren ska kontaktas.",1,"Hon använder mätvärdena för att avgöra vad som behöver göras."],
+   ["Du ser att patienten håller handen mot bröstet.",0,"Du ser något, men du säger inget om vad det betyder."],
+   ["Sjuksköterskan anser att smärtlindringen inte räcker.",1,"”Anser” betyder att hon tar ställning. Det är en bedömning."]
+  ],
+  fyllI:[
+   ["Under natten ___ du att patienten är orolig och går upp flera gånger.",["observerar","bedömer","observera"],"Du lägger märke till hur patienten gör. Presens: du observerar."],
+   ["Enligt sjuksköterskans ___ behöver patienten tätare kontroller.",["bedömning","observation","bedömer"],"Sjuksköterskan har kommit fram till vad som behövs. Efter ”sjuksköterskans” behövs ett substantiv: bedömning."],
+   ["Du skriver ner dina ___: patienten har ätit lite och druckit två glas vatten.",["observationer","bedömningar","observerar"],"Du skriver vad du har sett, inte vad det betyder. Efter ”dina” behövs ett substantiv i plural."],
+   ["Läkaren ___ att patienten kan åka hem i morgon.",["bedömer","observerar","bedöma"],"Att avgöra om patienten kan åka hem är en bedömning. Presens: bedömer."],
+   ["Igår ___ du att patienten haltade på vänster ben.",["observerade","bedömde","observerar"],"Du såg hur patienten gick. ”Igår” kräver preteritum: observerade."],
+   ["Sjuksköterskan ___ igår att såret läker som det ska.",["bedömde","observerade","bedömer"],"”Läker som det ska” är en slutsats. ”Igår” kräver preteritum: bedömde."]
+  ]},
+ {id:"framja",
+  ord:[["främja","hjälpa, gynna","Vilken åtgärd främjar hälsan?"],
+       ["förebygga","förhindra","Vilken åtgärd förebygger något?"]],
+  fraga:"Främjar eller förebygger åtgärden?",
+  regel:"Att främja är att stärka det som är friskt. Man främjar något bra, till exempel hälsa. Att förebygga är att hindra att något dåligt händer. Man förebygger något dåligt, till exempel fall.",
+  sortera:[
+   ["Du vänder patienten varannan timme så att hon inte får trycksår.",1,"Målet är att stoppa trycksår innan de uppstår."],
+   ["Du uppmuntrar patienten att träffa vännerna i dagrummet, eftersom gemenskapen får henne att må bra.",0,"Målet är att stärka hennes välbefinnande."],
+   ["Patienten får kompressionsstrumpor efter operationen.",1,"Strumporna ska hindra en blodpropp."],
+   ["Ni tar bort lösa mattor så att patienten inte ska ramla.",1,"Ni tar bort en risk för att hindra ett fall."],
+   ["Du hjälper patienten att hitta en hobby som hon tycker om.",0,"Målet är att stärka glädje och livskvalitet."],
+   ["Du tvättar händerna mellan varje patient.",1,"Handtvätten hindrar att smitta sprids."],
+   ["Ni går ut i solen en stund varje dag, eftersom det ger patienten energi.",0,"Målet är att stärka det friska: energi och humör."],
+   ["Patienten vaccineras mot influensa.",1,"Vaccinet ska hindra att hon blir sjuk."],
+   ["Du ger beröm när patienten klarar att klä på sig själv, så att hon känner sig stark.",0,"Berömmet stärker självkänsla och självständighet."],
+   ["Du påminner patienten om att dricka så att hon inte blir uttorkad.",1,"Målet är att stoppa uttorkning."]
+  ],
+  fyllI:[
+   ["Patienten får kompressionsstrumpor i ___ syfte.",["förebyggande","främjande","förebygga"],"Strumporna ska hindra blodpropp. ”I förebyggande syfte” är ett fast uttryck."],
+   ["Lägesändring varannan timme ___ trycksår.",["förebygger","främjar","förebygga"],"Trycksår är något dåligt. Man förebygger det dåliga. Den som ”främjar trycksår” gör så att de blir fler."],
+   ["Fysisk aktivitet ___ både den fysiska och den psykiska hälsan.",["främjar","förebygger","främja"],"Hälsa är något bra. Man främjar det bra. Man kan inte förebygga hälsa."],
+   ["Ni ___ fall genom att ha bra belysning i korridoren.",["förebygger","främjar","förebyggde"],"Fall är något dåligt som ni vill hindra. Presens: förebygger."],
+   ["Ett gott socialt nätverk ___ välbefinnandet.",["främjar","förebygger","främjade"],"Välbefinnande är något bra som stärks. Presens: främjar."],
+   ["Målet med kursen är att deltagarna ska må bättre och få mer energi. Det är ___ arbete.",["hälsofrämjande","förebyggande","främja"],"Kursen ska stärka det friska. Det kallas hälsofrämjande arbete."]
+  ]},
+ {id:"rapportera",
+  ord:[["rapportera","säga till","I vilken situation rapporterar du?"],
+       ["dokumentera","skriva ner","I vilken situation dokumenterar du?"]],
+  fraga:"Rapporterar eller dokumenterar du?",
+  regel:"Att rapportera är att berätta muntligt för en kollega. Att dokumentera är att skriva ner i patientens journal.",
+  sortera:[
+   ["Du ringer sjuksköterskan och berättar att patienten har fått feber.",0,"Du berättar för en kollega. Det är rapport."],
+   ["Du skriver i journalen att patienten har ätit halva middagen.",1,"Det du skriver i journalen är dokumentation."],
+   ["Vid passbytet berättar du för kvällspersonalen hur dagen har gått.",0,"Överlämningen vid passbytet kallas rapport."],
+   ["Du för in patientens vikt i journalen.",1,"Du skriver in ett värde i journalen."],
+   ["Du går till sjuksköterskan och säger att patienten verkar förvirrad.",0,"Du säger det till en kollega."],
+   ["Du skriver en journalanteckning om smärtan före och efter smärtlindringen.",1,"En journalanteckning är dokumentation."],
+   ["Du fyller i vätskelistan med hur mycket patienten har druckit.",1,"Vätskelistan är en del av patientens dokumentation."],
+   ["Du säger till läkaren att såret luktar illa.",0,"Du berättar för en kollega."],
+   ["Du skriver att patienten själv valde att duscha på kvällen.",1,"Det du skriver ner om patienten är dokumentation."],
+   ["Under ronden berättar du att patienten har sovit dåligt.",0,"Du berättar för kollegorna. Det är muntligt."]
+  ],
+  fyllI:[
+   ["Vid passbytet ger du ___ till kvällspersonalen.",["rapport","dokumentation","rapportera"],"Vid passbytet berättar man muntligt. Det heter att ge rapport."],
+   ["Du ___ i journalen att patienten inte ville ta sin medicin.",["dokumenterar","rapporterar","dokumentera"],"Det som skrivs i journalen dokumenteras. Presens: dokumenterar."],
+   ["Du ___ direkt till sjuksköterskan att patienten har ramlat.",["rapporterar","dokumenterar","rapport"],"Du säger det till en kollega, direkt. Presens: rapporterar."],
+   ["God ___ gör att nästa person kan läsa vad som har hänt.",["dokumentation","rapport","dokumentera"],"Det man kan läsa är skrivet. Efter ”god” behövs ett substantiv: dokumentation."],
+   ["Igår ___ du till sjuksköterskan att patienten hade fått utslag.",["rapporterade","dokumenterade","rapporterar"],"”Till sjuksköterskan” visar att du berättade för en kollega. ”Igår” kräver preteritum: rapporterade."],
+   ["Det som inte är ___ har inte hänt, brukar man säga i vården.",["dokumenterat","rapporterat","dokumentera"],"Uttrycket handlar om journalen. Efter ”är” används formen dokumenterat."]
+  ]},
+ {id:"kurativ",
+  ord:[["kurativ","botande","Vilken behandling är kurativ?"],
+       ["palliativ","lindrande","Vilken behandling är palliativ?"]],
+  fraga:"Är behandlingen kurativ eller palliativ?",
+  regel:"Kurativ behandling ska bota. Palliativ behandling ska lindra och ge god livskvalitet när det inte går att bota. Samma behandling kan vara båda. Det är målet som avgör.",
+  sortera:[
+   ["Patienten opereras för att hela tumören ska tas bort.",0,"Målet är att patienten ska bli frisk."],
+   ["Patienten med spridd cancer får morfin så att smärtan lindras.",1,"Cancern går inte att bota. Målet är mindre smärta."],
+   ["Patienten får antibiotika mot lunginflammation.",0,"Antibiotikan ska ta bort infektionen."],
+   ["Patienten i livets slutskede får munvård så att munnen inte blir torr.",1,"Målet är att hon ska ha det så bra som möjligt."],
+   ["Ett brutet ben opereras så att det kan läka.",0,"Målet är att benet ska bli helt igen."],
+   ["Patienten får strålning mot en metastas i ryggen för att minska smärtan.",1,"Strålningen ska lindra smärtan, inte bota cancern."],
+   ["Patienten får cellgifter för att bli helt frisk från sin leukemi.",0,"Målet är att bota."],
+   ["Patienten med svår hjärtsvikt får syrgas och lugn omkring sig så att andnöden känns mindre.",1,"Målet är att lindra andnöden."],
+   ["Gallstenarna opereras bort så att besvären försvinner.",0,"Orsaken tas bort och patienten blir frisk."],
+   ["Patienten får läkemedel mot illamående under sina sista veckor.",1,"Målet är att lindra under den sista tiden."]
+  ],
+  fyllI:[
+   ["Operationen görs i ___ syfte. Målet är att patienten ska bli frisk.",["kurativt","palliativt","kurativ"],"Målet är att bota. ”Syfte” är ett ett-ord, därför kurativt."],
+   ["Patienten är i ett ___ skede. Nu är smärtlindring och trygghet viktigast.",["palliativt","kurativt","palliativ"],"När målet är lindring och trygghet är skedet palliativt. ”Skede” är ett ett-ord."],
+   ["På avdelningen för ___ vård vårdas patienter i livets slutskede.",["palliativ","kurativ","palliativa"],"Vård i livets slutskede är palliativ. ”Vård” är ett en-ord: palliativ vård."],
+   ["När cancern har spridit sig ändras behandlingen från kurativ till ___.",["palliativ","kurativ","palliativt"],"När det inte längre går att bota blir målet att lindra."],
+   ["Antibiotika mot en urinvägsinfektion är en ___ behandling.",["kurativ","palliativ","kurativa"],"Antibiotikan botar infektionen. ”En behandling” ger formen kurativ."],
+   ["Strålningen ges i ___ syfte. Den ska minska smärtan från metastasen.",["palliativt","kurativt","palliativ"],"Målet är att minska smärtan, inte att bota. ”Syfte” ger formen palliativt."]
+  ]},
+ {id:"indikation",
+  ord:[["indikation","skäl att göra","I vilken situation är det markerade en indikation?"],
+       ["kontraindikation","skäl att låta bli","I vilken situation är det markerade en kontraindikation?"]],
+  fraga:"Är det markerade en indikation eller en kontraindikation?",
+  regel:"En indikation är ett skäl att ge en behandling eller göra en undersökning. En kontraindikation är ett skäl att låta bli. Fråga dig: talar det här för eller emot?",
+  sortera:[
+   ["Patienten har <mark>bröstsmärta</mark>. Läkaren beställer ett EKG.",0,"Bröstsmärtan är skälet till att ta EKG."],
+   ["Patienten är <mark>gravid</mark>. Läkaren funderar på ett läkemedel som kan skada fostret.",1,"Graviditeten talar emot läkemedlet."],
+   ["Patienten har <mark>feber och hosta</mark>. Läkaren beställer en lungröntgen.",0,"Febern och hostan är skälet till röntgen."],
+   ["Patienten är <mark>allergisk mot penicillin</mark>. Läkaren funderar på att ge penicillin.",1,"Allergin är ett skäl att låta bli."],
+   ["Patienten har <mark>svår smärta efter operationen</mark>. Hon får smärtlindring.",0,"Smärtan är skälet till smärtlindringen."],
+   ["Patienten har <mark>ett blödande magsår</mark>. Läkaren funderar på blodförtunnande läkemedel.",1,"Blodförtunnande kan förvärra blödningen. Det talar emot."],
+   ["Patienten har <mark>högt blodtryck</mark>. Läkaren skriver ut blodtryckssänkande läkemedel.",0,"Det höga blodtrycket är skälet till behandlingen."],
+   ["Patienten har <mark>mycket lågt blodtryck</mark>. Läkaren funderar på blodtryckssänkande läkemedel.",1,"Blodtrycket är redan lågt. Det talar emot att sänka det mer."],
+   ["Patienten har <mark>nyss ätit</mark>. Hon ska sövas för en planerad operation.",1,"Man ska fasta före narkos. Att hon har ätit talar emot att söva nu."],
+   ["Patienten har <mark>urinstämma</mark>. Sjuksköterskan sätter en kateter.",0,"Urinstämman är skälet till katetern."]
+  ],
+  fyllI:[
+   ["Bröstsmärta är en ___ för EKG.",["indikation","kontraindikation","indicerad"],"Bröstsmärta är ett skäl att ta EKG. Efter ”en” behövs ett substantiv: indikation."],
+   ["Penicillinallergi är en ___ för penicillin.",["kontraindikation","indikation","kontraindicerad"],"Allergin är ett skäl att låta bli. Efter ”en” behövs ett substantiv."],
+   ["Läkemedlet är ___ vid graviditet och får inte ges.",["kontraindicerat","indicerat","kontraindikation"],"”Får inte ges” visar att det talar emot. ”Läkemedlet” är ett ett-ord: kontraindicerat."],
+   ["Vid misstänkt stroke är en akut röntgen av hjärnan ___.",["indicerad","kontraindicerad","indikation"],"Misstänkt stroke är ett skäl att röntga. ”En röntgen” är ett en-ord: indicerad."],
+   ["Blodförtunnande läkemedel är ___ när patienten har ett blödande magsår.",["kontraindicerade","indicerade","kontraindikation"],"Blödningen talar emot. ”Läkemedel” står i plural: kontraindicerade."],
+   ["I remissen skriver läkaren vilken ___ som finns för undersökningen, alltså varför den ska göras.",["indikation","kontraindikation","indicerad"],"Varför något ska göras är indikationen."]
+  ]}
+];
+
+const LAGEN = {
+  1:{namn:"Sortera", beskr:"Läs situationen och välj vilket av två ord som passar."},
+  2:{namn:"Fyll i", beskr:"Välj rätt ord i rätt form i meningen."},
+  3:{namn:"Välj exemplet", beskr:"Läs ordet och välj den situation som passar."}
+};
+const POANG_HEL = 2, POANG_LEDTRAD = 1;
+const ANTAL_BLANDAT = 12, ANTAL_LAGE3 = 6;
+const FEL_FOR_KLARAD = 1;   // högst så här många fel på första försöket för att klara en grupp
+const TILLBAKA_EFTER = 4;   // ett felsvar kommer tillbaka så här många uppgifter senare
+
+/* ============================================================ */
+
+const LARARE = /larare/i.test(location.hash + location.search);
+const app = document.getElementById("app");
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const plain = s => s.replace(/<[^>]+>/g,"");
+const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]} return a };
+const pick = (a,n) => shuffle(a).slice(0,n);
+
+/* Framsteg sparas bara i den här webbläsaren */
+const LAGRING = "skillnaden-framsteg";
+const framsteg = {
+  las(){ let d={}; try{ d=JSON.parse(localStorage.getItem(LAGRING)||"{}") }catch(e){} return {1:d[1]||{},2:d[2]||{},3:d[3]||{}} },
+  klarad(lage,id){ return !!this.las()[lage][id] },
+  satt(lage,id){ try{ const d=this.las(); d[lage][id]=true; localStorage.setItem(LAGRING,JSON.stringify(d)) }catch(e){} },
+  last(lage,id){ return !LARARE && lage>1 && !this.klarad(lage-1,id) },
+  senasteLage(){ try{ return +localStorage.getItem("skillnaden-lage")||1 }catch(e){ return 1 } },
+  sparaLage(l){ try{ localStorage.setItem("skillnaden-lage",String(l)) }catch(e){} }
+};
+
+/* Uppläsning: webbläsarens egen svenska röst, samma val som i Ett pass */
+let rost = null;
+const kanTala = "speechSynthesis" in window;
+function hittaRost(){ if(!kanTala) return; const v=speechSynthesis.getVoices();
+  rost = v.find(x=>/^sv/i.test(x.lang)&&/google/i.test(x.name)) || v.find(x=>/^sv/i.test(x.lang)) || null }
+if(kanTala){ hittaRost(); speechSynthesis.onvoiceschanged=hittaRost }
+function tala(t){ if(!kanTala||!t) return; try{ speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(t.replace(/[”"]/g,"")); u.lang="sv-SE"; if(rost) u.voice=rost; u.rate=.9;
+  speechSynthesis.speak(u) }catch(e){} }
+function tyst(){ try{ kanTala&&speechSynthesis.cancel() }catch(e){} }
+const HOGTALARE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>`;
+
+/* ---------- Bygga uppgifter ---------- */
+function uppgiftLage1(g,it){
+  return {lage:1,g,fraga:g.fraga,html:it[0],lasText:plain(it[0]),
+    alt:g.ord.map((o,i)=>({html:esc(o[0]),vard:o[1],ratt:i===it[1]})),
+    rattOrd:g.ord[it[1]][0], varfor:it[2], fast:true, item:it};
+}
+function uppgiftLage2(g,it){
+  const [mening,former,varfor]=it;
+  const html = esc(mening).replace("___",'<span class="gap" aria-label="lucka">&nbsp;</span>');
+  return {lage:2,g,fraga:"Vilket ord passar i luckan?",html,lasText:mening.replace("___","lucka"),
+    alt:former.map((f,i)=>({html:esc(f),ratt:i===0,form:f})), rattOrd:former[0], varfor, item:it};
+}
+function uppgiftLage3(g,t,ratt,fel){
+  const alt = [ratt,...fel].map(it=>({html:it[0],lasText:plain(it[0]),ratt:it===ratt,varfor:it[2]}));
+  return {lage:3,g,fraga:g.ord[t][2],term:g.ord[t][0],html:"",
+    lasText:g.ord[t][2]+" "+alt.map((a,i)=>(i+1)+". "+a.lasText).join(" "),
+    alt, rattOrd:g.ord[t][0], varfor:ratt[2], item:ratt};
+}
+function lage3For(g,n){
+  const ut=[]; const anv=new Set();
+  for(let k=0;k<n;k++){
+    const t=k%2;
+    const kand=g.sortera.filter(it=>it[1]===t&&!anv.has(it));
+    const ratt=kand.length?pick(kand,1)[0]:pick(g.sortera.filter(it=>it[1]===t),1)[0];
+    anv.add(ratt);
+    const fel=pick(g.sortera.filter(it=>it[1]!==t),2);
+    ut.push(uppgiftLage3(g,t,ratt,fel));
+  }
+  return shuffle(ut);
+}
+function byggRunda(lage,id){
+  if(id==="mix"){
+    const grupper=GRUPPER.filter(g=>!framsteg.last(lage,g.id));
+    if(lage===1) return pick(grupper.flatMap(g=>g.sortera.map(it=>uppgiftLage1(g,it))),ANTAL_BLANDAT);
+    if(lage===2) return pick(grupper.flatMap(g=>g.fyllI.map(it=>uppgiftLage2(g,it))),ANTAL_BLANDAT);
+    return pick(grupper.flatMap(g=>lage3For(g,4)),ANTAL_BLANDAT);
+  }
+  const g=GRUPPER.find(x=>x.id===id);
+  if(lage===1) return shuffle(g.sortera.map(it=>uppgiftLage1(g,it)));
+  if(lage===2) return shuffle(g.fyllI.map(it=>uppgiftLage2(g,it)));
+  return lage3For(g,ANTAL_LAGE3);
+}
+
+/* ---------- Meny ---------- */
+let valtLage = framsteg.senasteLage();
+let S = null;
+
+function meny(){
+  S=null; tyst();
+  const L=valtLage;
+  const oppna=GRUPPER.filter(g=>!framsteg.last(L,g.id));
+  app.innerHTML = `
+    <header style="display:flex;flex-direction:column;gap:8px">
+      <h1>Skillnaden</h1>
+      <p class="lead">Ord som ligger nära varandra. Träna på att se skillnaden.</p>
+    </header>
+    <div class="tabs" role="tablist">
+      ${[1,2,3].map(n=>`<button class="tab" role="tab" aria-selected="${n===L}" data-l="${n}">
+        <span class="n">Läge ${n}</span><span class="t">${LAGEN[n].namn}</span></button>`).join("")}
+    </div>
+    <p class="modedesc">${LAGEN[L].beskr}${L>1?` En grupp öppnas när du har klarat den i läge ${L-1}.`:""}</p>
+    ${LARARE?`<p class="teacher">Lärarläge: alla grupper är öppna.</p>`:""}
+    <div class="groups">
+      ${GRUPPER.map(g=>{
+        const last=framsteg.last(L,g.id), klar=framsteg.klarad(L,g.id);
+        const antal = L===1?g.sortera.length:L===2?g.fyllI.length:ANTAL_LAGE3;
+        return `<button class="g" data-id="${g.id}" ${last?"disabled":""}>
+          <span class="pair">${g.ord.map(o=>o[0]).join(" / ")}</span>
+          <span class="meta"><span>${last?`Klara läge ${L-1} först`:antal+" uppgifter"}</span>${klar?'<span class="chip">Klarad</span>':""}</span>
+        </button>`}).join("")}
+      ${oppna.length>=2?`<button class="g mix" data-id="mix">
+        <span class="pair">Blandat</span>
+        <span class="meta"><span>${ANTAL_BLANDAT} från ${oppna.length===GRUPPER.length?"alla grupper":"öppna grupper"}</span></span>
+      </button>`:""}
+    </div>`;
+  app.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{ valtLage=+b.dataset.l; framsteg.sparaLage(valtLage); meny() });
+  app.querySelectorAll(".g").forEach(b=>b.onclick=()=>starta(valtLage,b.dataset.id));
+}
+
+/* ---------- Spel ---------- */
+function starta(lage,id){
+  const ko=byggRunda(lage,id);
+  S={lage,id,ko,pos:0,antal:ko.length,poang:0,max:ko.length*POANG_HEL,forsta:0,missade:[],fel:new Set(),ledtrad:false,svarat:false,ordning:null};
+  visaUppgift();
+}
+
+function visaUppgift(){
+  const u=S.ko[S.pos];
+  S.ordning = u.fast ? u.alt : shuffle(u.alt);
+  const kort = u.lage===3
+    ? `<div class="card"><p class="txt"><span class="term">${esc(u.term)}</span></p>${kanTala?`<button class="speak" id="tala" aria-label="Läs upp">${HOGTALARE}</button>`:""}</div>`
+    : `<div class="card"><p class="txt">${u.html}</p>${kanTala?`<button class="speak" id="tala" aria-label="Läs upp">${HOGTALARE}</button>`:""}</div>`;
+  app.innerHTML = `
+    <div class="bar">
+      <button class="back" id="tillbaka">← Grupper</button>
+      <div class="prog" aria-hidden="true"><i style="width:${Math.round(S.pos/S.ko.length*100)}%"></i></div>
+      <span class="score" id="poang">${S.poang} p</span>
+    </div>
+    <p class="ask">${esc(u.fraga)}</p>
+    ${kort}
+    <div class="answers m${u.lage}">
+      ${S.ordning.map((a,i)=>`
+        <button class="ans" data-i="${i}">
+          <span class="w">${a.html}</span>
+          ${u.lage===1?`<span class="v" ${S.ledtrad?"":"hidden"}>${esc(a.vard)}</span>
+          <span class="key" aria-hidden="true">${i?"→":"←"}</span>`:""}
+        </button>`).join("")}
+    </div>
+    <div class="hintbox" id="hintbox" ${S.ledtrad&&u.lage>1?"":"hidden"}>${u.g.ord.map(o=>`<span><b>${esc(o[0])}</b> = ${esc(o[1])}</span>`).join("")}</div>
+    <button class="hint" id="ledtrad" ${S.ledtrad?"disabled":""}>${S.ledtrad?"Vardagsord visas":"Visa vardagsord (ger 1 poäng i stället för 2)"}</button>
+    <div id="fb"></div>`;
+  document.getElementById("tillbaka").onclick=meny;
+  document.getElementById("ledtrad").onclick=visaLedtrad;
+  const tb=document.getElementById("tala"); if(tb) tb.onclick=()=>tala(u.lasText);
+  app.querySelectorAll(".ans").forEach(b=>b.onclick=()=>svara(+b.dataset.i));
+}
+
+function visaLedtrad(){
+  if(S.svarat||S.ledtrad) return;
+  S.ledtrad=true;
+  app.querySelectorAll(".ans .v").forEach(v=>v.hidden=false);
+  const hb=document.getElementById("hintbox"); if(hb&&S.ko[S.pos].lage>1) hb.hidden=false;
+  const h=document.getElementById("ledtrad"); h.disabled=true; h.textContent="Vardagsord visas";
+}
+
+function svara(i){
+  if(S.svarat) return;
+  S.svarat=true;
+  const u=S.ko[S.pos], vald=S.ordning[i], ratt=vald.ratt;
+  const forsta=!S.fel.has(u);
+  if(ratt){ if(forsta){ S.forsta++; S.poang+=S.ledtrad?POANG_LEDTRAD:POANG_HEL } }
+  else {
+    if(forsta){ S.fel.add(u); S.missade.push(u) }
+    S.ko.splice(Math.min(S.pos+TILLBAKA_EFTER,S.ko.length),0,u);
+  }
+  app.querySelectorAll(".ans").forEach(b=>{
+    const a=S.ordning[+b.dataset.i]; b.disabled=true;
+    b.classList.add(a.ratt?"right":(a===vald?"wrong":"dim"));
+  });
+  document.getElementById("ledtrad").disabled=true;
+  document.getElementById("poang").textContent=S.poang+" p";
+  let html;
+  if(ratt) html=`<div class="fb ok"><strong>Rätt.</strong><p>${esc(u.varfor)}</p></div>`;
+  else {
+    const rubrik = u.lage===3 ? "Inte den här." : `Rätt svar: ${esc(u.rattOrd)}`;
+    const valdInfo = u.lage===3 ? `<p class="small">Det du valde: ${esc(vald.varfor)}</p><p>Rätt situation: ${esc(u.varfor)}</p>` : `<p>${esc(u.varfor)}</p>`;
+    html=`<div class="fb bad"><strong>${rubrik}</strong>${valdInfo}<p class="rule">${esc(u.g.regel)}</p><p class="small">Uppgiften kommer tillbaka lite senare.</p></div>`;
+  }
+  const fb=document.getElementById("fb"); fb.innerHTML=html;
+  const nb=document.createElement("button"); nb.className="next"; nb.id="nasta";
+  nb.textContent=S.pos+1>=S.ko.length?"Se resultat":"Nästa";
+  nb.onclick=nasta; fb.firstChild.appendChild(nb); nb.focus();
+}
+
+function nasta(){
+  tyst();
+  S.pos++; S.ledtrad=false; S.svarat=false;
+  if(S.pos>=S.ko.length) return resultat();
+  visaUppgift(); window.scrollTo(0,0);
+}
+
+function resultat(){
+  const klarade=S.missade.length<=FEL_FOR_KLARAD;
+  const nyOppnad = klarade && S.id!=="mix" && S.lage<3 && !framsteg.klarad(S.lage,S.id);
+  if(klarade&&S.id!=="mix") framsteg.satt(S.lage,S.id);
+  const g=GRUPPER.find(x=>x.id===S.id);
+  let text;
+  if(S.id==="mix") text="";
+  else if(klarade) text = S.lage<3 ? ` Gruppen är klarad${nyOppnad?` och har öppnats i läge ${S.lage+1}`:""}.` : " Gruppen är klarad i alla tre lägen.";
+  else text = ` Du klarar gruppen när du har högst ${FEL_FOR_KLARAD} fel på första försöket. Spela gärna en gång till.`;
+  app.innerHTML = `
+    <header style="display:flex;flex-direction:column;gap:10px">
+      <h2>${klarade?"Bra jobbat!":"Rundan är klar"}</h2>
+      <p class="big">${S.poang}<span style="font-size:1.25rem;color:var(--muted)"> / ${S.max} p</span></p>
+      <p class="lead">Rätt på första försöket: ${S.forsta} av ${S.antal}.${text}</p>
+    </header>
+    ${S.missade.length?`
+      <section style="display:flex;flex-direction:column;gap:10px">
+        <h2 style="font-size:1.1rem">Det här var svårt</h2>
+        <ul class="missed">${S.missade.map(u=>`<li>${u.lage===3?`<span class="a">${esc(u.term)}</span>: ${u.item[0]}`:u.lage===2?`${esc(u.item[0]).replace("___",`<span class="a">${esc(u.rattOrd)}</span>`)}`:`${u.html}<br><span class="a">${esc(u.rattOrd)}</span>`} <br>${esc(u.varfor)}</li>`).join("")}</ul>
+      </section>`:""}
+    <div class="row">
+      ${nyOppnad?`<button class="next" id="vidare">Fortsätt till läge ${S.lage+1}</button>`:""}
+      <button class="${nyOppnad?"btn2":"next"}" id="igen">Spela igen</button>
+      <button class="btn2" id="meny">Välj grupp</button>
+    </div>`;
+  const lage=S.lage,id=S.id;
+  document.getElementById("igen").onclick=()=>starta(lage,id);
+  document.getElementById("meny").onclick=()=>{ valtLage=lage; meny() };
+  const v=document.getElementById("vidare"); if(v) v.onclick=()=>{ valtLage=lage+1; framsteg.sparaLage(valtLage); starta(lage+1,id) };
+  window.scrollTo(0,0);
+}
+
+document.addEventListener("keydown",e=>{
+  if(!S||!document.querySelector(".ans")) return;
+  const u=S.ko[S.pos];
+  if(!S.svarat){
+    if(u.lage===1&&e.key==="ArrowLeft") return svara(0);
+    if(u.lage===1&&e.key==="ArrowRight") return svara(1);
+    const n=parseInt(e.key,10); if(n>=1&&n<=S.ordning.length) return svara(n-1);
+  } else if(e.key==="Enter"&&document.activeElement?.id!=="nasta"){ e.preventDefault(); nasta() }
+});
+
+meny();
+</script>
+</body>
+</html>
