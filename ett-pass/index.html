@@ -45,14 +45,16 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 .say .txt.quote{font-style:italic}
 .say .txt.quote::before{content:"”"}.say .txt.quote::after{content:"”"}
 .ask{margin:12px 0 4px;color:var(--soft);font-size:17px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px}
 .list{display:grid;gap:10px;margin-top:10px}
 .opt{background:#fff;border:3px solid var(--line);border-radius:14px;padding:10px;min-height:56px;text-align:center;transition:border-color .2s,background .2s}
 .opt:active{transform:scale(.98)}
 .opt svg{width:100%;max-width:120px;height:auto;display:block;margin:0 auto}
 .opt img.hm{width:100%;max-width:170px;aspect-ratio:1;display:block;margin:0 auto;border-radius:10px}
-.opt .lbl{display:block;font-weight:700;font-size:17px;min-height:1.4em}
+.opt .lbl{display:block;overflow-wrap:break-word;hyphens:manual;font-weight:700;font-size:17px;min-height:1.4em}
 .opt .lbl.hidden{visibility:hidden}
+.opt .lbl.lang{font-size:14px;letter-spacing:-.2px}
+@media (max-width:380px){.opt .lbl.lang{font-size:12.5px;letter-spacing:-.3px}}
 .opt .fack{display:block;font-size:14px;color:var(--soft);font-weight:400}
 .list .opt{text-align:left;padding:12px 16px;font-size:19px;font-weight:600}
 .opt.right{border-color:var(--green);background:var(--green-bg)}
@@ -202,15 +204,15 @@ const FALL = [
     uppgifter: [
       { typ: "hamta", rum: "badrum", hor: "{namn} ska duscha. {Hen} måste ha sitt larm på sig.", fraga: "Vad ska {hen} ha på armen?",
         alternativ: [
-          { ikon: "trygghetslarm", text: "Trygghetslarm", ratt: true, forklaring: "Rätt! Med trygghetslarmet kan {namn} larma om {hen} ramlar." },
-          { ikon: "klocka", text: "Armbandsklocka", forklaring: "En klocka visar tiden. Den kan inte larma." },
+          { ikon: "trygghetslarm", text: "Trygghets\u00ADlarm", ratt: true, forklaring: "Rätt! Med trygghetslarmet kan {namn} larma om {hen} ramlar." },
+          { ikon: "klocka", text: "Armbands\u00ADklocka", forklaring: "En klocka visar tiden. Den kan inte larma." },
           { ikon: "nyckel", text: "Nyckel", forklaring: "Det där är en nyckel. Den kan inte larma." } ] } ] },
 
   { id: "skydd", titel: "Byta skydd", tema: "hygien",
     uppgifter: [
       { typ: "hamta", rum: "badrum", hor: "{namn} behöver byta sitt skydd.", fraga: "Vad ska du ta fram?",
         alternativ: [
-          { ikon: "inkontinensskydd", text: "Inkontinensskydd", ratt: true, forklaring: "Rätt! Ett inkontinensskydd tar upp urin. Man säger ofta bara ”skydd”." },
+          { ikon: "inkontinensskydd", text: "Inkontinens\u00ADskydd", ratt: true, forklaring: "Rätt! Ett inkontinensskydd tar upp urin. Man säger ofta bara ”skydd”." },
           { ikon: "handduk", text: "Handduk", forklaring: "En handduk torkar man sig med efter tvätt. Den är inget skydd." },
           { ikon: "tvattlapp", text: "Tvättlapp", forklaring: "En tvättlapp tvättar man huden med. Den är inget skydd." } ] } ] },
 
@@ -367,7 +369,7 @@ const FALL = [
     uppgifter: [
       { typ: "handla", rum: "sovrum", humor: "ont", hor: "{namn} ligger på golvet när du kommer.", fraga: "Vad gör du först?",
         alternativ: [
-          { text: "Frågar hur {hen} mår och om {hen} har ont", ratt: true, forklaring: "Rätt! Lyft inte direkt. Fråga först och titta efter skador. Larma sedan enligt er rutin." },
+          { text: "Frågar hur {hen} mår och om {hen} har ont", ratt: true, forklaring: "Rätt! Lyft inte direkt. Fråga först och titta efter skador. Larma sedan enligt rutin." },
           { text: "Lyfter upp {henne} direkt", forklaring: "Nej. {namn} kan ha brutit något. Lyft inte innan du vet hur {hen} mår." },
           { text: "Kokar kaffe först", forklaring: "Nej. {namn} behöver hjälp nu." } ] } ],
     rapport: { text: "{namn} har ramlat", ratt: true, forklaring: "Ja. Ett fall ska alltid rapporteras." } },
@@ -421,7 +423,7 @@ const IKON = {
   hink: `<path ${S} fill="#a8c08f" d="M22 36h56l-7 50H29z"/><ellipse ${S} fill="#8aa774" cx="50" cy="36" rx="28" ry="6"/><path ${S} fill="none" d="M22 36c0-26 56-26 56 0"/>`
 };
 /* Föremål med egen bild i bilder/hm_<namn>.webp. Saknas namnet här används SVG-ikonen ovan. */
-const HM_BILDER = ["backen", "duschstol", "hink", "kryckor", "nattstol", "rollator", "rullstol", "sockor", "stodstrumpor", "tofflor", "urinflaska", "koksstol"];
+const HM_BILDER = ["backen", "duschstol", "hink", "kryckor", "nattstol", "rollator", "rullstol", "sockor", "stodstrumpor", "tofflor", "urinflaska", "koksstol", "horapparat", "glasogon", "tandprotes", "trygghetslarm", "klocka", "nyckel", "inkontinensskydd", "handduk", "tvattlapp"];
 const ikon = n => HM_BILDER.includes(n)
   ? `<img class="hm" src="bilder/hm_${n}.webp" alt="" draggable="false">`
   : `<svg viewBox="0 0 100 100" aria-hidden="true">${IKON[n] || ""}</svg>`;
@@ -612,7 +614,7 @@ function uppdrag() {
   }
   let alternativHTML;
   if (u.typ === "hamta") {
-    alternativHTML = `<div class="grid">${alts.map((a, i) => `<button class="opt" data-i="${i}">${ikon(a.ikon)}<span class="lbl hidden">${esc(a.text)}</span></button>`).join("")}</div>`;
+    alternativHTML = `<div class="grid">${alts.map((a, i) => `<button class="opt" data-i="${i}">${ikon(a.ikon)}<span class="lbl hidden${a.text.length > 12 ? " lang" : ""}">${esc(a.text)}</span></button>`).join("")}</div>`;
   } else if (u.typ === "visa") {
     alternativHTML = `<div class="body-wrap">${kroppSVG(alts)}</div>`;
   } else {
