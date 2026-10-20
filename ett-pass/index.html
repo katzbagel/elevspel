@@ -155,7 +155,10 @@ const PASS = {
           alternativ: [
             { del: "kna", text: "Knä", ratt: true, forklaring: "Rätt! Det där är knät. Det sitter mitt på benet." },
             { del: "hoft", text: "Höft", forklaring: "Det där är höften. Knät sitter längre ner, mitt på benet." },
-            { del: "fotled", text: "Fotled", forklaring: "Det där är fotleden. Knät sitter högre upp, mitt på benet." } ] },
+            { del: "fotled", text: "Fotled", forklaring: "Det där är fotleden. Knät sitter högre upp, mitt på benet." },
+            { del: "axel", text: "Axel", forklaring: "Det där är axeln. Den sitter där armen börjar. Knät sitter mitt på benet." },
+            { del: "armbage", text: "Armbåge", forklaring: "Det där är armbågen. Den sitter mitt på armen. Knät sitter mitt på benet." },
+            { del: "hand", text: "Hand", forklaring: "Det där är handen. Knät sitter mitt på benet." } ] },
         { typ: "forsta", rum: "vardagsrum", humor: "ont", sager: "Jag fryser och svettas samtidigt.", fraga: "Vad kan det vara?",
           alternativ: [
             { text: "Feber", fack: "febril", ratt: true, forklaring: "Rätt! Att frysa och svettas samtidigt kan betyda feber. Man säger att Ahmed kan vara febril." },
@@ -166,11 +169,11 @@ const PASS = {
             { text: "Mäter temperaturen", ratt: true, forklaring: "Rätt! Mät temperaturen först. Sedan rapporterar du till sjuksköterskan." },
             { text: "Ger honom Alvedon själv", forklaring: "Nej. Du får inte ge läkemedel på eget initiativ. Läkemedel ges bara enligt ordination." },
             { text: "Öppnar fönstret", forklaring: "Nej. Det hjälper inte Ahmed. Mät temperaturen först." } ] },
-        { typ: "forsta", rum: "badrum", humor: "ont", sager: "Det svider när jag kissar.", fraga: "Vad menar Ahmed?",
+        { typ: "forsta", rum: "badrum", humor: "ont", sager: "Det bränner när jag kissar.", fraga: "Vad menar Ahmed?",
           alternativ: [
-            { text: "Sveda när man kissar", fack: "dysuri", ratt: true, forklaring: "Rätt! Det heter sveda vid kissning. Fackordet är dysuri. Det kan vara en urinvägsinfektion." },
-            { text: "Magont", fack: "buksmärta", forklaring: "Magont betyder att det gör ont i magen. Ahmed säger att det svider när han kissar." },
-            { text: "Ont i ryggen", fack: "ryggsmärta", forklaring: "Ont i ryggen betyder att det gör ont i ryggen. Ahmed säger att det svider när han kissar." } ] }
+            { text: "Sveda vid kissning", fack: "dysuri", ratt: true, forklaring: "Rätt! ”Det bränner” betyder att det svider. Sveda vid kissning heter dysuri. Det kan vara en urinvägsinfektion." },
+            { text: "Behöver kissa ofta", fack: "pollakisuri", forklaring: "Det betyder att man måste gå på toaletten många gånger. Ahmed säger att det bränner när han kissar." },
+            { text: "Läcker urin", fack: "inkontinens", forklaring: "Det betyder att man inte kan hålla tätt, att det kommer kiss utan att man vill. Ahmed säger att det bränner." } ] }
       ]
     },
     {
@@ -178,7 +181,7 @@ const PASS = {
       uppdrag: [
         { typ: "hamta", rum: "badrum", hor: "Gunnar ska duscha. Han behöver sitta.", fraga: "Vad ska han sitta på?",
           alternativ: [
-            { ikon: "duschpall", text: "Duschpall", ratt: true, forklaring: "Rätt! På en duschpall kan man sitta och duscha säkert. Den har gummifötter som inte glider." },
+            { ikon: "duschstol", text: "Duschstol", ratt: true, forklaring: "Rätt! På en duschstol kan man sitta och duscha säkert. Den har ryggstöd, armstöd och gummifötter som inte glider." },
             { ikon: "nattstol", text: "Nattstol", forklaring: "Det där är en nattstol. Den står vid sängen och man kan kissa i den på natten." },
             { ikon: "koksstol", text: "Köksstol", forklaring: "En vanlig köksstol kan glida på det våta golvet. Den är inte säker i duschen." } ] },
         { typ: "hamta", rum: "sovrum", hor: "Gunnar behöver kissa i natt.", fraga: "Vad ställer du fram vid sängen?",
@@ -199,7 +202,7 @@ const PASS = {
     antal: 3,
     alternativ: [
       { text: "Karin blir yr när hon reser sig", ratt: true, forklaring: "Ja. Yrsel kan leda till fall. Lena behöver veta det." },
-      { text: "Ahmed har feber och det svider när han kissar", ratt: true, forklaring: "Ja. Feber och sveda kan vara en infektion. Det är viktigt." },
+      { text: "Ahmed har feber och det bränner när han kissar", ratt: true, forklaring: "Ja. Feber och sveda kan vara en infektion. Det är viktigt." },
       { text: "Gunnar har inte bajsat på fyra dagar", ratt: true, forklaring: "Ja. Förstoppning kan ge ont och göra en äldre person förvirrad." },
       { text: "Karin ville inte äta frukost", forklaring: "Bra att du märkte det! Skriv det i dokumentationen. Det är inte lika bråttom som de andra." },
       { text: "Ahmed vill ha kaffe", forklaring: "Det behöver du inte rapportera till sjuksköterskan." },
@@ -229,13 +232,13 @@ const IKON = {
   hink: `<path ${S} fill="#a8c08f" d="M22 36h56l-7 50H29z"/><ellipse ${S} fill="#8aa774" cx="50" cy="36" rx="28" ry="6"/><path ${S} fill="none" d="M22 36c0-26 56-26 56 0"/>`
 };
 /* Föremål med egen bild i bilder/hm_<namn>.webp. Saknas namnet här används SVG-ikonen ovan. */
-const HM_BILDER = ["backen", "duschpall", "hink", "kryckor", "nattstol", "rollator", "rullstol", "sockor", "stodstrumpor", "tofflor", "urinflaska", "koksstol"];
+const HM_BILDER = ["backen", "duschstol", "hink", "kryckor", "nattstol", "rollator", "rullstol", "sockor", "stodstrumpor", "tofflor", "urinflaska", "koksstol"];
 const ikon = n => HM_BILDER.includes(n)
   ? `<img class="hm" src="bilder/hm_${n}.webp" alt="" draggable="false">`
   : `<svg viewBox="0 0 100 100" aria-hidden="true">${IKON[n] || ""}</svg>`;
 
 /* Kroppsfigur för typ "visa" – punkter på höger ben (från betraktaren) */
-const KROPP_PUNKTER = { hoft: [124, 162], kna: [115, 236], fotled: [114, 296] };
+const KROPP_PUNKTER = { axel: [68, 74], armbage: [60, 106], hand: [50, 140], hoft: [124, 162], kna: [115, 236], fotled: [114, 296] };
 function kroppSVG(alts) {
   const spots = alts.map((a, i) => {
     const [x, y] = KROPP_PUNKTER[a.del];
