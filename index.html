@@ -229,7 +229,7 @@ const IKON = {
   hink: `<path ${S} fill="#a8c08f" d="M22 36h56l-7 50H29z"/><ellipse ${S} fill="#8aa774" cx="50" cy="36" rx="28" ry="6"/><path ${S} fill="none" d="M22 36c0-26 56-26 56 0"/>`
 };
 /* Föremål med egen bild i bilder/hm_<namn>.webp. Saknas namnet här används SVG-ikonen ovan. */
-const HM_BILDER = ["backen", "duschpall", "hink", "kryckor", "nattstol", "rollator", "rullstol", "sockor", "stodstrumpor", "tofflor", "urinflaska"];
+const HM_BILDER = ["backen", "duschpall", "hink", "kryckor", "nattstol", "rollator", "rullstol", "sockor", "stodstrumpor", "tofflor", "urinflaska", "koksstol"];
 const ikon = n => HM_BILDER.includes(n)
   ? `<img class="hm" src="bilder/hm_${n}.webp" alt="" draggable="false">`
   : `<svg viewBox="0 0 100 100" aria-hidden="true">${IKON[n] || ""}</svg>`;
