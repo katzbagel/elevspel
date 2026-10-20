@@ -378,6 +378,7 @@ function meny(){
   const oppna=GRUPPER.filter(g=>!framsteg.last(L,g.id));
   app.innerHTML = `
     <header style="display:flex;flex-direction:column;gap:8px">
+      <a href="../" class="back" style="align-self:flex-start;text-decoration:none">← Alla spel</a>
       <h1>Skillnaden</h1>
       <p class="lead">Ord som ligger nära varandra. Träna på att se skillnaden.</p>
     </header>

@@ -1,11 +1,21 @@
-# Ett pass – elevspel för vårdord
+# Elevspel – vård och omsorg
 
-Webbspel där elever i vård- och omsorgsutbildningen tränar ord och begrepp genom ett arbetspass i hemtjänsten. Fungerar på Chromebook, dator och mobil. Ingen inloggning och ingen datainsamling. Framsteg sparas bara lokalt i webbläsaren.
+Webbspel där elever i vård- och omsorgsutbildningen tränar ord och begrepp. Fungerar på Chromebook, dator och mobil. Ingen inloggning och ingen datainsamling. Framsteg sparas bara lokalt i webbläsaren.
 
-- `index.html` – hela spelet. Innehållet (uppdrag, ord, förklaringar) ligger i objektet `PASS` högst upp i skriptet.
-- `bilder/` – illustrationer i WebP-format.
+Framsida: https://katzbagel.github.io/elevspel/
+
+- `index.html` – framsidan där eleven väljer spel. Spelen listas i objektet `SPEL` högst upp i skriptet. Ett nytt spel läggs i en egen mapp och får en rad där.
+
+## Ett pass – ett arbetspass i hemtjänsten
+
+Adress: https://katzbagel.github.io/elevspel/ett-pass/
+
+- `ett-pass/index.html` – hela spelet. Innehållet (uppdrag, ord, förklaringar) ligger i objektet `PASS` högst upp i skriptet.
+- `ett-pass/bilder/` – illustrationer i WebP-format.
 
 ## Skillnaden – ord som ligger nära varandra
+
+Adress: https://katzbagel.github.io/elevspel/skillnaden/
 
 Mappen `skillnaden/` är ett eget spel för de svårare och mer abstrakta begreppen. Eleven tränar på skillnaden mellan ord som ligger nära varandra, till exempel symtom/tecken och kurativ/palliativ.
 

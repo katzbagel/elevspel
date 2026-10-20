@@ -3,476 +3,96 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Ett pass – hemtjänsten</title>
-<meta name="theme-color" content="#f3e3cf">
+<title>Elevspel</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
 <style>
+/* Layout: rubrik och en lista med spelkort, ett per rad på mobil och två bredvid varandra på större skärmar. */
 :root{
-  --bg:#f3e3cf; --card:#fffaf3; --ink:#3f2620; --soft:#7a5a4e; --line:#e2cdb5;
-  --green:#4f7a4a; --green-bg:#e3eedd; --red:#b5533c; --red-bg:#f6e0d9; --accent:#c9673f;
-  --radius:16px;
+  --bg:#f1f3f2; --surface:#ffffff; --ink:#1c2422; --muted:#5a6663; --line:#d5dcd9; --accent:#1f5f55;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  color-scheme:light;
 }
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111715; --surface:#1a2220; --ink:#e7eeeb; --muted:#9fb0aa; --line:#2e3a36; --accent:#5fb3a3; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111715; --surface:#1a2220; --ink:#e7eeeb; --muted:#9fb0aa; --line:#2e3a36; --accent:#5fb3a3; color-scheme:dark}
+
 *{box-sizing:border-box}
-html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font:18px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
-#app{max-width:900px;margin:0 auto;padding:12px 16px 32px;min-height:100vh}
-button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:12px 26px;border-radius:999px;background:var(--accent);color:#fff;font-weight:700;font-size:19px;box-shadow:0 3px 0 #9c4d2d}
-.btn:active{transform:translateY(2px);box-shadow:0 1px 0 #9c4d2d}
-.btn:disabled{opacity:.4;box-shadow:none;cursor:default}
-.btn.ghost{background:var(--card);color:var(--ink);box-shadow:0 3px 0 var(--line)}
-.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
-.progress{flex:1;height:10px;background:var(--line);border-radius:99px;overflow:hidden}
-.progress>i{display:block;height:100%;background:var(--green);border-radius:99px;transition:width .4s}
-.icon-btn{width:48px;height:48px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-size:22px;box-shadow:0 2px 0 var(--line);flex:none}
-/* Start */
-.hero{position:relative;border-radius:var(--radius);overflow:hidden;aspect-ratio:16/9;background:#dfe8ee center/cover}
-.hero h1{position:absolute;top:8%;left:0;right:0;text-align:center;margin:0;font-size:clamp(34px,8vw,64px);letter-spacing:.5px;color:var(--ink);text-shadow:0 2px 0 #fff8}
-.hero p{position:absolute;top:calc(8% + clamp(44px,10vw,80px));left:0;right:0;text-align:center;margin:0;font-size:clamp(16px,3vw,22px);color:var(--soft)}
-.center{text-align:center;margin-top:20px}
-.lead{font-size:20px;max-width:560px;margin:16px auto}
-.small{font-size:15px;color:var(--soft)}
-/* Scen */
-.scene{position:relative;border-radius:var(--radius);overflow:hidden;aspect-ratio:16/9;background:#eee center/cover;transition:background-image .3s}
-.room{position:absolute;top:10px;right:10px;background:#fffaf3e6;border-radius:99px;padding:4px 14px;font-size:15px;font-weight:600}
-.patient{position:absolute;left:10px;bottom:10px;width:30%;max-width:210px;background:var(--card);border-radius:14px;padding:6px 6px 4px;box-shadow:0 4px 14px #0002;text-align:center}
-.patient img{width:100%;aspect-ratio:1;border-radius:10px;display:block;object-fit:cover}
-.patient b{display:block;font-size:16px;padding-top:2px}
-.patient.pop img{animation:pop .45s}
-@keyframes pop{40%{transform:scale(1.06)}}
-.panel{background:var(--card);border-radius:var(--radius);padding:16px;margin-top:12px;box-shadow:0 2px 0 var(--line)}
-.say{display:flex;gap:12px;align-items:flex-start}
-.say .txt{flex:1;font-size:21px;font-weight:600}
-.say .txt.quote{font-style:italic}
-.say .txt.quote::before{content:"”"}.say .txt.quote::after{content:"”"}
-.ask{margin:12px 0 4px;color:var(--soft);font-size:17px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
-.list{display:grid;gap:10px;margin-top:10px}
-.opt{background:#fff;border:3px solid var(--line);border-radius:14px;padding:10px;min-height:56px;text-align:center;transition:border-color .2s,background .2s}
-.opt:active{transform:scale(.98)}
-.opt svg{width:100%;max-width:120px;height:auto;display:block;margin:0 auto}
-.opt img.hm{width:100%;max-width:170px;aspect-ratio:1;display:block;margin:0 auto;border-radius:10px}
-.opt .lbl{display:block;font-weight:700;font-size:17px;min-height:1.4em}
-.opt .lbl.hidden{visibility:hidden}
-.opt .fack{display:block;font-size:14px;color:var(--soft);font-weight:400}
-.list .opt{text-align:left;padding:12px 16px;font-size:19px;font-weight:600}
-.opt.right{border-color:var(--green);background:var(--green-bg)}
-.opt.wrong{border-color:var(--red);background:var(--red-bg);opacity:.75}
-.opt.done{pointer-events:none}
-.fb{margin-top:14px;padding:14px 16px;border-radius:14px;font-size:18px;display:flex;gap:10px;align-items:flex-start}
-.fb.ok{background:var(--green-bg)}.fb.no{background:var(--red-bg)}
-.fb .t{flex:1}
-.next{margin-top:14px;text-align:right}
-/* Kropp */
-.body-wrap{display:flex;justify-content:center;margin-top:6px}
-.body-wrap svg{width:min(240px,60vw);height:auto}
-.spot{cursor:pointer}
-.spot circle.ring{fill:#c9673f33;stroke:var(--accent);stroke-width:3;animation:pulse 1.6s infinite}
-.spot.right circle.ring{fill:#4f7a4a55;stroke:var(--green);animation:none}
-.spot.wrong circle.ring{fill:#b5533c44;stroke:var(--red);animation:none}
-@keyframes pulse{50%{stroke-width:6}}
-/* Besök-intro */
-.visit{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
-.visit img{width:150px;height:150px;border-radius:16px;object-fit:cover}
-.visit div{flex:1;min-width:220px}
-.visit h2{margin:0 0 6px}
-/* Rapport */
-.nurse{display:flex;gap:14px;align-items:center}
-.nurse img{width:110px;height:110px;border-radius:14px;object-fit:cover;flex:none}
-.check{display:flex;gap:12px;align-items:center}
-.check .box{width:30px;height:30px;border-radius:8px;border:3px solid var(--line);flex:none;display:grid;place-items:center;font-weight:900}
-.opt.sel{border-color:var(--accent)}
-.opt.sel .box{background:var(--accent);border-color:var(--accent);color:#fff}
-.opt.picked .box{background:var(--soft);border-color:var(--soft);color:#fff}
-.opt.right.done{border-color:var(--green);background:var(--green-bg)}
-.opt.right.picked .box{background:var(--green);border-color:var(--green)}
-.opt.wrong.done{border-color:var(--red);background:var(--red-bg);opacity:1}
-.opt.wrong.picked .box{background:var(--red);border-color:var(--red)}
-.opt .why{display:block;font-size:16px;font-weight:400;margin-top:6px;color:var(--ink)}
-/* Slut */
-.stars{font-size:46px;letter-spacing:6px;margin:8px 0}
-.words{width:100%;border-collapse:collapse;margin-top:10px;font-size:17px}
-.words td{padding:8px 6px;border-bottom:1px solid var(--line)}
-.words td:last-child{width:52px;text-align:right}
-@media (max-width:560px){
-  body{font-size:17px}
-  .grid{gap:8px}
-  .opt{padding:6px}
-  .opt .lbl{font-size:15px}
-  .say .txt{font-size:19px}
-  .patient{width:34%}
-}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{background:var(--bg);color:var(--ink)}
+body{margin:0;font-family:var(--body);font-size:1.0625rem;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 48px}
+.wrap{max-width:880px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1,h2{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(2.2rem,8vw,3.2rem);font-weight:800;line-height:1.05}
+p{margin:0}
+.lead{color:var(--muted);max-width:50ch;font-size:1.1rem}
+.spel{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,360px),1fr));gap:18px}
+.kort{display:flex;flex-direction:column;background:var(--surface);border:1.5px solid var(--line);border-radius:16px;overflow:hidden;color:inherit;text-decoration:none}
+.kort:hover{border-color:var(--accent)}
+.kort:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.bild{aspect-ratio:16/9;max-width:100%;background:var(--line) center/cover no-repeat;display:grid;place-items:center}
+.text{padding:16px 18px 18px;display:flex;flex-direction:column;gap:8px;flex:1}
+.kort h2{font-size:1.5rem;font-weight:600}
+.kort p{color:var(--muted)}
+.tranar{font-size:.9rem;color:var(--muted);border-top:1px solid var(--line);padding-top:10px;margin-top:auto}
+.tranar b{color:var(--ink)}
+.oppna{font-weight:700;color:var(--accent)}
+.fot{font-size:.9rem;color:var(--muted)}
 </style>
 </head>
 <body>
-<div id="app"></div>
+<main class="wrap">
+  <header style="display:flex;flex-direction:column;gap:10px">
+    <h1>Elevspel</h1>
+    <p class="lead">Spel för att träna ord och begrepp i vård och omsorg. Välj ett spel.</p>
+  </header>
+  <div class="spel" id="spel"></div>
+  <p class="fot">Inget konto behövs. Det du gör sparas bara i den här webbläsaren.</p>
+</main>
 
 <script>
-/* ==========================================================
-   INNEHÅLL – ändra här, inte i motorn längre ner.
-   Typer: hamta (välj föremål), forsta (vad menar brukaren),
-          handla (vad gör du), visa (peka på kroppsdel)
-   ========================================================== */
-const PASS = {
-  titel: "Ett pass",
-  undertitel: "Hemtjänsten",
-  intro: "Du jobbar i hemtjänsten i dag. Du ska besöka tre personer. Lyssna noga och hjälp dem.",
-  sjukskoterska: { namn: "Lena", bild: "sjukskoterska" },
-  brukare: [
-    {
-      id: "karin", namn: "Karin", intro: "Karin är 84 år och bor ensam. Du kommer på morgonbesök.",
-      uppdrag: [
-        { typ: "hamta", rum: "sovrum", hor: "Karin ska ha sina stödstrumpor på sig.", fraga: "Vad ska du ta fram?",
-          alternativ: [
-            { ikon: "stodstrumpor", text: "Stödstrumpor", ratt: true, forklaring: "Rätt! Stödstrumpor är långa och sitter hårt runt benen. De hjälper blodet att gå tillbaka till hjärtat." },
-            { ikon: "tofflor", text: "Tofflor", forklaring: "Det där är tofflor. Man har dem på fötterna inomhus. Stödstrumpor är långa och sitter hårt runt benen." },
-            { ikon: "sockor", text: "Sockor", forklaring: "Det där är vanliga sockor. Stödstrumpor är längre och sitter hårt runt benen." } ] },
-        { typ: "forsta", rum: "sovrum", humor: "ont", sager: "Det snurrar i huvudet när jag reser mig.", fraga: "Vad menar Karin?",
-          alternativ: [
-            { text: "Yrsel", fack: "vertigo", ratt: true, forklaring: "Rätt! ”Det snurrar i huvudet” betyder att Karin är yr. Fackordet är vertigo." },
-            { text: "Huvudvärk", fack: "cefalgi", forklaring: "Huvudvärk betyder att det gör ont i huvudet. Karin säger att det snurrar." },
-            { text: "Illamående", fack: "nausea", forklaring: "Illamående betyder att man mår illa, som om man ska kräkas. Karin säger att det snurrar." } ] },
-        { typ: "handla", rum: "sovrum", humor: "ont", hor: "Karin är yr när hon reser sig.", fraga: "Vad gör du?",
-          alternativ: [
-            { text: "Låter henne sitta en stund innan hon reser sig", ratt: true, forklaring: "Rätt! Om man reser sig för snabbt kan man bli yr och ramla. Karin får sitta kvar en stund först." },
-            { text: "Hjälper henne snabbt upp", forklaring: "Nej. Om Karin reser sig snabbt kan hon bli mer yr och ramla. Det är fallrisk." },
-            { text: "Ger henne en tablett", forklaring: "Nej. Du får bara ge läkemedel enligt ordination. Berätta för sjuksköterskan i stället." } ] },
-        { typ: "forsta", rum: "kok", humor: "neutral", sager: "Jag orkar inte äta, jag är inte hungrig.", fraga: "Vad menar Karin?",
-          alternativ: [
-            { text: "Dålig aptit", fack: "inappetens", ratt: true, forklaring: "Rätt! ”Jag är inte hungrig” betyder dålig aptit. Fackordet är inappetens." },
-            { text: "Illamående", fack: "nausea", forklaring: "Illamående betyder att man mår illa. Karin säger att hon inte är hungrig." },
-            { text: "Magont", fack: "buksmärta", forklaring: "Magont betyder att det gör ont i magen. Karin säger att hon inte är hungrig." } ] }
-      ]
-    },
-    {
-      id: "ahmed", namn: "Ahmed", intro: "Ahmed är 78 år. Han går med rollator. I dag mår han inte så bra.",
-      uppdrag: [
-        { typ: "hamta", rum: "vardagsrum", hor: "Ahmed vill gå till köket. Hämta hans rollator.", fraga: "Vad ska du hämta?",
-          alternativ: [
-            { ikon: "rollator", text: "Rollator", ratt: true, forklaring: "Rätt! En rollator har hjul och handtag. Man går med den och kan vila på sitsen." },
-            { ikon: "rullstol", text: "Rullstol", forklaring: "Det där är en rullstol. Man sitter i den. Ahmed vill gå själv." },
-            { ikon: "kryckor", text: "Kryckor", forklaring: "Det där är kryckor. Ahmed går med rollator, den har hjul." } ] },
-        { typ: "visa", rum: "vardagsrum", humor: "ont", hor: "Ahmed har ont i knät.", fraga: "Tryck på knät.",
-          alternativ: [
-            { del: "kna", text: "Knä", ratt: true, forklaring: "Rätt! Det där är knät. Det sitter mitt på benet." },
-            { del: "hoft", text: "Höft", forklaring: "Det där är höften. Knät sitter längre ner, mitt på benet." },
-            { del: "fotled", text: "Fotled", forklaring: "Det där är fotleden. Knät sitter högre upp, mitt på benet." } ] },
-        { typ: "forsta", rum: "vardagsrum", humor: "ont", sager: "Jag fryser och svettas samtidigt.", fraga: "Vad kan det vara?",
-          alternativ: [
-            { text: "Feber", fack: "febril", ratt: true, forklaring: "Rätt! Att frysa och svettas samtidigt kan betyda feber. Man säger att Ahmed kan vara febril." },
-            { text: "Trötthet", fack: "fatigue", forklaring: "Trött betyder att man vill sova eller vila. Ahmed fryser och svettas." },
-            { text: "Förkylning", fack: "", forklaring: "Förkyld betyder att man har snuva och hosta. Att frysa och svettas kan vara feber." } ] },
-        { typ: "handla", rum: "vardagsrum", humor: "ont", hor: "Ahmed kan ha feber.", fraga: "Vad gör du?",
-          alternativ: [
-            { text: "Mäter temperaturen", ratt: true, forklaring: "Rätt! Mät temperaturen först. Sedan rapporterar du till sjuksköterskan." },
-            { text: "Ger honom Alvedon själv", forklaring: "Nej. Du får inte ge läkemedel på eget initiativ. Läkemedel ges bara enligt ordination." },
-            { text: "Öppnar fönstret", forklaring: "Nej. Det hjälper inte Ahmed. Mät temperaturen först." } ] },
-        { typ: "forsta", rum: "badrum", humor: "ont", sager: "Det svider när jag kissar.", fraga: "Vad menar Ahmed?",
-          alternativ: [
-            { text: "Sveda när man kissar", fack: "dysuri", ratt: true, forklaring: "Rätt! Det heter sveda vid kissning. Fackordet är dysuri. Det kan vara en urinvägsinfektion." },
-            { text: "Magont", fack: "buksmärta", forklaring: "Magont betyder att det gör ont i magen. Ahmed säger att det svider när han kissar." },
-            { text: "Ont i ryggen", fack: "ryggsmärta", forklaring: "Ont i ryggen betyder att det gör ont i ryggen. Ahmed säger att det svider när han kissar." } ] }
-      ]
-    },
-    {
-      id: "gunnar", namn: "Gunnar", intro: "Gunnar är 91 år. Du kommer på kvällsbesök och hjälper honom med dusch och kvällen.",
-      uppdrag: [
-        { typ: "hamta", rum: "badrum", hor: "Gunnar ska duscha. Han behöver sitta.", fraga: "Vad ska han sitta på?",
-          alternativ: [
-            { ikon: "duschpall", text: "Duschpall", ratt: true, forklaring: "Rätt! På en duschpall kan man sitta och duscha säkert. Den har gummifötter som inte glider." },
-            { ikon: "nattstol", text: "Nattstol", forklaring: "Det där är en nattstol. Den står vid sängen och man kan kissa i den på natten." },
-            { ikon: "koksstol", text: "Köksstol", forklaring: "En vanlig köksstol kan glida på det våta golvet. Den är inte säker i duschen." } ] },
-        { typ: "hamta", rum: "sovrum", hor: "Gunnar behöver kissa i natt.", fraga: "Vad ställer du fram vid sängen?",
-          alternativ: [
-            { ikon: "urinflaska", text: "Urinflaska", ratt: true, forklaring: "Rätt! I en urinflaska kan man kissa, till exempel i sängen på natten." },
-            { ikon: "backen", text: "Bäcken", forklaring: "Det där är ett bäcken. Man använder det när man ligger i sängen och inte kan resa sig. Gunnar kan använda urinflaska." },
-            { ikon: "hink", text: "Hink", forklaring: "En hink är inget hjälpmedel. Den är inte gjord för att kissa i." } ] },
-        { typ: "forsta", rum: "kok", humor: "ont", sager: "Jag har inte bajsat på fyra dagar.", fraga: "Vad menar Gunnar?",
-          alternativ: [
-            { text: "Förstoppning", fack: "obstipation", ratt: true, forklaring: "Rätt! Att inte bajsa på flera dagar heter förstoppning. Fackordet är obstipation." },
-            { text: "Diarré", fack: "", forklaring: "Diarré betyder lös och vattnig avföring, ofta många gånger. Gunnar har inte bajsat alls." },
-            { text: "Illamående", fack: "nausea", forklaring: "Illamående betyder att man mår illa. Gunnar har inte bajsat på fyra dagar." } ] }
-      ]
-    }
-  ],
-  rapport: {
-    uppmaning: "Passet är snart slut. Ring sjuksköterskan Lena. Välj tre saker som hon måste få veta.",
-    antal: 3,
-    alternativ: [
-      { text: "Karin blir yr när hon reser sig", ratt: true, forklaring: "Ja. Yrsel kan leda till fall. Lena behöver veta det." },
-      { text: "Ahmed har feber och det svider när han kissar", ratt: true, forklaring: "Ja. Feber och sveda kan vara en infektion. Det är viktigt." },
-      { text: "Gunnar har inte bajsat på fyra dagar", ratt: true, forklaring: "Ja. Förstoppning kan ge ont och göra en äldre person förvirrad." },
-      { text: "Karin ville inte äta frukost", forklaring: "Bra att du märkte det! Skriv det i dokumentationen. Det är inte lika bråttom som de andra." },
-      { text: "Ahmed vill ha kaffe", forklaring: "Det behöver du inte rapportera till sjuksköterskan." },
-      { text: "Gunnar har duschat", forklaring: "Det är vanlig omvårdnad. Det behöver du inte rapportera." }
-    ]
+/* ============================================================
+   SPELEN – lägg till ett nytt spel genom att lägga till ett objekt här.
+   mapp:   mappen i repot där spelet ligger
+   bild:   bild i spelets mapp (valfritt). Utan bild visas ordexemplet.
+   exempel: två eller tre ord som visas på kortet när det saknas bild
+   ============================================================ */
+const SPEL = [
+  {
+    mapp: "ett-pass",
+    namn: "Ett pass",
+    beskrivning: "Gör ett arbetspass i hemtjänsten. Du får uppdrag, möter brukare och använder rätt ord och hjälpmedel.",
+    tranar: "Vardagsord och fackord i omvårdnad",
+    bild: "ett-pass/bilder/startbild.webp"
+  },
+  {
+    mapp: "skillnaden",
+    namn: "Skillnaden",
+    beskrivning: "Ord som ligger nära varandra. Träna på att se skillnaden i tre lägen: sortera, fyll i och välj exemplet.",
+    tranar: "Svårare fackord och begrepp",
+    exempel: ["symtom", "tecken"]
   }
-};
+];
 
-const RUM = { sovrum: "Sovrum", kok: "Kök", vardagsrum: "Vardagsrum", badrum: "Badrum" };
-
-/* ==========================================================
-   IKONER (SVG) – föremål som eleven väljer bland
-   ========================================================== */
-const S = 'stroke="#5a3428" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"';
-const IKON = {
-  stodstrumpor: `<path ${S} fill="#d9b49a" d="M28 8h16v58c0 6-3 10-9 13l-12 6c-7 3-12-6-5-10l8-5c2-1 2-3 2-5z"/><path ${S} fill="#c79f86" d="M54 8h16v58c0 6-3 10-9 13l-12 6c-7 3-12-6-5-10l8-5c2-1 2-3 2-5z"/><path ${S} fill="none" d="M28 16h16M54 16h16"/>`,
-  tofflor: `<path ${S} fill="#9cb3c9" d="M14 70c0-22 6-34 14-34s12 12 12 34c0 8-26 8-26 0z"/><path ${S} fill="#7d97b0" d="M14 62c4-10 22-10 26 0v8c0 8-26 8-26 0z"/><path ${S} fill="#9cb3c9" d="M58 70c0-22 6-34 14-34s12 12 12 34c0 8-26 8-26 0z"/><path ${S} fill="#7d97b0" d="M58 62c4-10 22-10 26 0v8c0 8-26 8-26 0z"/>`,
-  sockor: `<path ${S} fill="#e8c46a" d="M26 26h18v32c0 5-2 8-7 11l-10 6c-7 3-12-6-5-10l4-3z"/><path ${S} fill="#a8c08f" d="M56 26h18v32c0 5-2 8-7 11l-10 6c-7 3-12-6-5-10l4-3z"/><path ${S} fill="none" d="M26 32h18M56 32h18"/>`,
-  rollator: `<path ${S} fill="none" d="M30 22l-10 60M70 22l10 60M30 22h-6M70 22h6M26 50h48"/><rect ${S} fill="#c9673f" x="30" y="52" width="40" height="14" rx="3"/><circle ${S} fill="#fff" cx="20" cy="84" r="7"/><circle ${S} fill="#fff" cx="80" cy="84" r="7"/><path ${S} fill="none" d="M20 22h10M70 22h10"/>`,
-  rullstol: `<circle ${S} fill="#fff" cx="40" cy="64" r="24"/><circle ${S} fill="none" cx="40" cy="64" r="4"/><circle ${S} fill="#fff" cx="80" cy="84" r="6"/><path ${S} fill="none" d="M26 16v34h40l10 28M66 50l-6-16H34"/><rect ${S} fill="#7d97b0" x="30" y="40" width="38" height="10" rx="3"/>`,
-  kryckor: `<path ${S} fill="none" d="M30 14l14 76M66 14l-14 76"/><path ${S} fill="#9cb3c9" d="M24 12c4-6 14-6 16 0l-2 6c-4-4-10-4-12 2z"/><path ${S} fill="#9cb3c9" d="M60 12c4-6 14-6 16 0l-2 6c-4-4-10-4-12 2z"/><path ${S} fill="none" d="M33 34h9M58 34h9"/><circle fill="#5a3428" cx="44" cy="90" r="4"/><circle fill="#5a3428" cx="52" cy="90" r="4"/>`,
-  duschpall: `<rect ${S} fill="#e9e3dc" x="18" y="34" width="64" height="14" rx="6"/><path ${S} fill="none" d="M26 48l-6 34M74 48l6 34M38 48l-2 34M62 48l2 34"/><rect fill="#5a3428" x="15" y="80" width="10" height="7" rx="2"/><rect fill="#5a3428" x="75" y="80" width="10" height="7" rx="2"/><rect fill="#5a3428" x="31" y="80" width="9" height="7" rx="2"/><rect fill="#5a3428" x="60" y="80" width="9" height="7" rx="2"/><circle fill="#5a3428" cx="40" cy="41" r="2"/><circle fill="#5a3428" cx="50" cy="41" r="2"/><circle fill="#5a3428" cx="60" cy="41" r="2"/>`,
-  nattstol: `<path ${S} fill="#d9cfc4" d="M24 12h52v38H24z"/><rect ${S} fill="#e9e3dc" x="18" y="48" width="64" height="12" rx="4"/><ellipse ${S} fill="#9c8a7c" cx="50" cy="54" rx="14" ry="4"/><path ${S} fill="none" d="M22 60v28M78 60v28M14 30h10M76 30h10M14 30v18M86 30v18"/>`,
-  koksstol: `<path ${S} fill="#c58d5c" d="M30 10h40v6H30z"/><path ${S} fill="none" d="M32 16v32M68 16v32M44 16v32M56 16v32"/><rect ${S} fill="#c58d5c" x="24" y="48" width="52" height="10" rx="3"/><path ${S} fill="none" d="M28 58l-4 32M72 58l4 32M36 58l-1 32M64 58l1 32"/>`,
-  urinflaska: `<path ${S} fill="#e6eef2" d="M26 40c0-8 6-14 14-14h20c10 0 16 8 16 18v26c0 8-6 14-14 14H40c-8 0-14-6-14-14z"/><path ${S} fill="#e6eef2" d="M58 26l12-16h12l-4 12-10 8"/><path ${S} fill="none" d="M30 40c-10 0-14 8-14 14s4 12 12 12"/><path ${S} fill="none" stroke-dasharray="4 5" d="M34 62h30"/>`,
-  backen: `<path ${S} fill="#e6eef2" d="M10 50c0-10 14-16 34-16h20c16 0 26 8 26 18s-10 16-26 16H34c-14 0-24-6-24-18z"/><ellipse ${S} fill="#cfdbe2" cx="58" cy="51" rx="20" ry="9"/><path ${S} fill="#e6eef2" d="M10 50c-2 6 0 10 6 12"/>`,
-  hink: `<path ${S} fill="#a8c08f" d="M22 36h56l-7 50H29z"/><ellipse ${S} fill="#8aa774" cx="50" cy="36" rx="28" ry="6"/><path ${S} fill="none" d="M22 36c0-26 56-26 56 0"/>`
-};
-/* Föremål med egen bild i bilder/hm_<namn>.webp. Saknas namnet här används SVG-ikonen ovan. */
-const HM_BILDER = ["backen", "duschpall", "hink", "kryckor", "nattstol", "rollator", "rullstol", "sockor", "stodstrumpor", "tofflor", "urinflaska", "koksstol"];
-const ikon = n => HM_BILDER.includes(n)
-  ? `<img class="hm" src="bilder/hm_${n}.webp" alt="" draggable="false">`
-  : `<svg viewBox="0 0 100 100" aria-hidden="true">${IKON[n] || ""}</svg>`;
-
-/* Kroppsfigur för typ "visa" – punkter på höger ben (från betraktaren) */
-const KROPP_PUNKTER = { hoft: [124, 162], kna: [115, 236], fotled: [114, 296] };
-function kroppSVG(alts) {
-  const spots = alts.map((a, i) => {
-    const [x, y] = KROPP_PUNKTER[a.del];
-    return `<g class="spot" data-i="${i}" role="button" aria-label="Punkt ${i + 1}"><circle cx="${x}" cy="${y}" r="26" fill="transparent" stroke="none"/><circle class="ring" cx="${x}" cy="${y}" r="13"/></g>`;
-  }).join("");
-  return `<svg viewBox="0 0 200 330" ${S}>
-    <g fill="#f2c2a0" stroke="#5a3428" stroke-width="3">
-      <circle cx="100" cy="34" r="22"/>
-      <path d="M86 54h28l3 10H83z"/>
-      <path d="M70 66c0-6 6-10 14-10h32c8 0 14 4 14 10v80H70z" fill="#7d97b0"/>
-      <path d="M70 70l-18 64M130 70l18 64" fill="none" stroke-width="12" stroke="#7d97b0"/>
-      <circle cx="50" cy="140" r="7"/><circle cx="150" cy="140" r="7"/>
-      <path d="M72 146h56l2 26H70z" fill="#5f6f7e"/>
-      <path d="M72 168h26l-2 132H80z" fill="#5f6f7e"/>
-      <path d="M102 168h26l-4 132h-20z" fill="#5f6f7e"/>
-      <path d="M80 300h16v10H70c0-6 4-10 10-10zM104 300h16c6 0 10 4 10 10h-26z" fill="#7a5a4e"/>
-    </g>${spots}</svg>`;
-}
-
-/* ==========================================================
-   MOTOR
-   ========================================================== */
-const app = document.getElementById("app");
-const img = n => `bilder/${n}.webp`;
-const shuffle = a => a.map(v => [Math.random(), v]).sort((x, y) => x[0] - y[0]).map(v => v[1]);
-const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-
-let ljud = true;
-try { ljud = localStorage.getItem("ettpass_ljud") !== "av"; } catch (e) {}
-let rost = null;
-function hittaRost() {
-  if (!("speechSynthesis" in window)) return;
-  const v = speechSynthesis.getVoices();
-  rost = v.find(x => /^sv/i.test(x.lang) && /google/i.test(x.name)) || v.find(x => /^sv/i.test(x.lang)) || null;
-}
-if ("speechSynthesis" in window) { hittaRost(); speechSynthesis.onvoiceschanged = hittaRost; }
-function tala(text) {
-  if (!ljud || !("speechSynthesis" in window) || !text) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text.replace(/[”"]/g, ""));
-  u.lang = "sv-SE"; if (rost) u.voice = rost; u.rate = 0.9;
-  speechSynthesis.speak(u);
-}
-const hogtalare = t => `<button class="icon-btn" data-tala="${esc(t)}" aria-label="Lyssna">🔊</button>`;
-
-/* Tillstånd */
-let st;
-const allaUppdrag = () => PASS.brukare.reduce((n, b) => n + b.uppdrag.length, 0);
-function nyttPass() { st = { b: 0, u: -1, poang: 0, klara: 0, forsok: 0, ord: [] }; }
-
-function toppRad() {
-  const tot = allaUppdrag() + 1;
-  const pct = Math.round((st.klara / tot) * 100);
-  return `<div class="top"><div class="progress" aria-label="Framsteg"><i style="width:${pct}%"></i></div>
-    <button class="icon-btn" id="ljudknapp" aria-label="Ljud av/på">${ljud ? "🔊" : "🔇"}</button></div>`;
-}
-
-function visa(html) {
-  app.innerHTML = html;
-  app.querySelectorAll("[data-tala]").forEach(b => b.onclick = () => tala(b.dataset.tala));
-  const lk = document.getElementById("ljudknapp");
-  if (lk) lk.onclick = () => {
-    ljud = !ljud; try { localStorage.setItem("ettpass_ljud", ljud ? "pa" : "av"); } catch (e) {}
-    if (!ljud && "speechSynthesis" in window) speechSynthesis.cancel();
-    lk.textContent = ljud ? "🔊" : "🔇";
-  };
-  window.scrollTo(0, 0);
-}
-
-/* --- Start --- */
-function startSkarm() {
-  let basta = null;
-  try { basta = localStorage.getItem("ettpass_basta"); } catch (e) {}
-  visa(`<div class="hero" style="background-image:url(${img("startbild")})">
-      <h1>${PASS.titel}</h1><p>${PASS.undertitel}</p></div>
-    <div class="center">
-      <p class="lead">${PASS.intro}</p>
-      <button class="btn" id="go">Starta passet</button>
-      <p class="small">Tips: sätt på ljudet. Allt läses upp.${basta ? `<br>Ditt bästa resultat: ${basta}` : ""}</p>
-    </div>`);
-  document.getElementById("go").onclick = () => { nyttPass(); tala(PASS.intro); besokIntro(); };
-}
-
-/* --- Besök --- */
-function besokIntro() {
-  const b = PASS.brukare[st.b];
-  visa(`${toppRad()}
-    <div class="panel"><div class="visit">
-      <img src="${img(b.id + "_neutral")}" alt="${b.namn}">
-      <div><h2>Besök ${st.b + 1}: ${b.namn}</h2><p>${b.intro}</p></div>
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+document.getElementById("spel").innerHTML = SPEL.map(s => `
+  <a class="kort" href="${esc(s.mapp)}/">
+    ${s.bild
+      ? `<div class="bild" style="background-image:url('${esc(s.bild)}')" role="img" aria-label=""></div>`
+      : `<div class="bild" aria-hidden="true" style="background:var(--accent)">
+           <span style="font-family:var(--display);font-weight:800;font-size:clamp(1.6rem,6vw,2.4rem);color:var(--surface);text-align:center;line-height:1.15;padding:0 16px">
+             ${(s.exempel||[s.namn]).map(esc).join(' <span style="opacity:.55;font-weight:600">eller</span> ')}</span></div>`}
+    <div class="text">
+      <h2>${esc(s.namn)}</h2>
+      <p>${esc(s.beskrivning)}</p>
+      <p class="tranar"><b>Tränar:</b> ${esc(s.tranar)}</p>
+      <span class="oppna">Starta →</span>
     </div>
-    <div class="next"><button class="btn" id="go">Gå in</button></div></div>`);
-  tala(`Besök ${st.b + 1}. ${b.intro}`);
-  document.getElementById("go").onclick = () => { st.u = 0; uppdrag(); };
-}
-
-function uppdrag() {
-  const b = PASS.brukare[st.b];
-  const u = b.uppdrag[st.u];
-  const humor = u.humor || "neutral";
-  const replik = u.sager ? `<div class="txt quote">${esc(u.sager)}</div>` : `<div class="txt">${esc(u.hor)}</div>`;
-  const uppl = u.sager ? `${b.namn} säger: ${u.sager}` : u.hor;
-  const alts = shuffle(u.alternativ.map((a, i) => ({ ...a, _i: i })));
-  let alternativHTML;
-  if (u.typ === "hamta") {
-    alternativHTML = `<div class="grid">${alts.map((a, i) => `<button class="opt" data-i="${i}">${ikon(a.ikon)}<span class="lbl hidden">${esc(a.text)}</span></button>`).join("")}</div>`;
-  } else if (u.typ === "visa") {
-    alternativHTML = `<div class="body-wrap">${kroppSVG(alts)}</div>`;
-  } else {
-    alternativHTML = `<div class="list">${alts.map((a, i) => `<button class="opt" data-i="${i}">${esc(a.text)}${u.typ === "forsta" && a.fack ? `<span class="fack">${esc(a.fack)}</span>` : ""}</button>`).join("")}</div>`;
-  }
-  visa(`${toppRad()}
-    <div class="scene" style="background-image:url(${img("miljo_" + u.rum)})">
-      <span class="room">${RUM[u.rum]}</span>
-      <div class="patient" id="pat"><img src="${img(b.id + "_" + humor)}" alt="${b.namn}"><b>${b.namn}</b></div>
-    </div>
-    <div class="panel">
-      <div class="say">${replik}${hogtalare(uppl + ". " + u.fraga)}</div>
-      <div class="ask">${esc(u.fraga)}</div>
-      ${alternativHTML}
-      <div id="fb"></div>
-    </div>`);
-  tala(uppl + ". " + u.fraga);
-
-  let forstaForsoket = true;
-  const pat = document.getElementById("pat");
-  const knappar = u.typ === "visa" ? app.querySelectorAll(".spot") : app.querySelectorAll(".opt");
-  knappar.forEach(el => el.onclick = () => {
-    if (el.classList.contains("done") || el.classList.contains("wrong")) return;
-    const a = alts[+el.dataset.i];
-    const fb = document.getElementById("fb");
-    if (a.ratt) {
-      el.classList.add("right");
-      knappar.forEach(k => k.classList.add("done"));
-      app.querySelectorAll(".lbl").forEach(l => l.classList.remove("hidden"));
-      if (forstaForsoket) st.poang++;
-      st.klara++;
-      if (u.typ !== "handla") st.ord.push({ ord: a.text, fack: a.fack || "" });
-      pat.querySelector("img").src = img(b.id + "_glad");
-      pat.classList.remove("pop"); void pat.offsetWidth; pat.classList.add("pop");
-      const sist = st.u === b.uppdrag.length - 1;
-      fb.innerHTML = `<div class="fb ok"><div class="t">${esc(a.forklaring)}</div>${hogtalare(a.forklaring)}</div>
-        <div class="next"><button class="btn" id="nasta">${sist ? "Klar här" : "Nästa"}</button></div>`;
-      fb.querySelector("[data-tala]").onclick = () => tala(a.forklaring);
-      tala(a.forklaring);
-      document.getElementById("nasta").onclick = nasta;
-      document.getElementById("nasta").scrollIntoView({ behavior: "smooth", block: "center" });
-    } else {
-      forstaForsoket = false;
-      el.classList.add("wrong");
-      const lbl = el.querySelector(".lbl"); if (lbl) lbl.classList.remove("hidden");
-      fb.innerHTML = `<div class="fb no"><div class="t">${esc(a.forklaring)} <b>Försök igen!</b></div>${hogtalare(a.forklaring)}</div>`;
-      fb.querySelector("[data-tala]").onclick = () => tala(a.forklaring);
-      tala(a.forklaring + " Försök igen.");
-    }
-  });
-}
-
-function nasta() {
-  const b = PASS.brukare[st.b];
-  if (st.u < b.uppdrag.length - 1) { st.u++; uppdrag(); return; }
-  if (st.b < PASS.brukare.length - 1) { st.b++; st.u = -1; besokIntro(); return; }
-  rapport();
-}
-
-/* --- Rapport --- */
-function rapport() {
-  const r = PASS.rapport, s = PASS.sjukskoterska;
-  const alts = shuffle(r.alternativ);
-  const valda = new Set();
-  visa(`${toppRad()}
-    <div class="panel">
-      <div class="nurse"><img src="${img(s.bild)}" alt="Sjuksköterskan ${s.namn}">
-        <div class="say" style="flex:1"><div class="txt">${esc(r.uppmaning)}</div>${hogtalare(r.uppmaning)}</div></div>
-      <div class="list" id="rl">${alts.map((a, i) => `<button class="opt check" data-i="${i}"><span class="box"></span><span>${esc(a.text)}<span class="why" hidden></span></span></button>`).join("")}</div>
-      <div class="next"><button class="btn" id="skicka" disabled>Rapportera (0 av ${r.antal})</button></div>
-      <div id="fb"></div>
-    </div>`);
-  tala(r.uppmaning);
-  const skicka = document.getElementById("skicka");
-  app.querySelectorAll("#rl .opt").forEach(el => el.onclick = () => {
-    if (el.classList.contains("done")) return;
-    const i = +el.dataset.i;
-    if (valda.has(i)) { valda.delete(i); el.classList.remove("sel"); el.querySelector(".box").textContent = ""; }
-    else if (valda.size < r.antal) { valda.add(i); el.classList.add("sel"); el.querySelector(".box").textContent = "✓"; tala(alts[i].text); }
-    skicka.disabled = valda.size !== r.antal;
-    skicka.textContent = `Rapportera (${valda.size} av ${r.antal})`;
-  });
-  skicka.onclick = () => {
-    let ratt = 0;
-    app.querySelectorAll("#rl .opt").forEach(el => {
-      const a = alts[+el.dataset.i], vald = valda.has(+el.dataset.i);
-      el.classList.add("done"); el.classList.remove("sel");
-      if (vald) el.classList.add("picked"); else if (a.ratt) el.querySelector(".box").textContent = "!";
-      if (a.ratt && vald) { el.classList.add("right"); ratt++; }
-      else if (a.ratt) el.classList.add("right");
-      else if (vald) el.classList.add("wrong");
-      if (a.ratt || vald) { const w = el.querySelector(".why"); w.textContent = a.forklaring; w.hidden = false; }
-    });
-    st.poang += ratt; st.klara++;
-    const msg = ratt === r.antal ? "Bra rapport! Lena fick veta allt viktigt." : `Du valde ${ratt} av ${r.antal} viktiga saker. Läs vad som var viktigast.`;
-    skicka.remove();
-    document.getElementById("fb").innerHTML = `<div class="fb ${ratt === r.antal ? "ok" : "no"}"><div class="t">${msg}</div></div>
-      <div class="next"><button class="btn" id="slut">Avsluta passet</button></div>`;
-    tala(msg);
-    document.getElementById("slut").onclick = slut;
-  };
-}
-
-/* --- Slut --- */
-function slut() {
-  const max = allaUppdrag() + PASS.rapport.antal;
-  const andel = st.poang / max;
-  const stjarnor = andel >= .9 ? 3 : andel >= .6 ? 2 : 1;
-  const res = `${st.poang} av ${max}`;
-  try {
-    const gammal = localStorage.getItem("ettpass_basta");
-    if (!gammal || parseInt(gammal) < st.poang) localStorage.setItem("ettpass_basta", res);
-  } catch (e) {}
-  const ord = st.ord.filter((o, i, a) => a.findIndex(x => x.ord === o.ord) === i);
-  const text = stjarnor === 3 ? "Fantastiskt! Du har gjort ett jättebra pass." : stjarnor === 2 ? "Bra jobbat! Du klarade passet." : "Passet är klart. Spela igen så lär du dig mer!";
-  visa(`${toppRad()}
-    <div class="panel center" style="margin-top:0">
-      <h2 style="margin:4px 0">Passet är slut!</h2>
-      <div class="stars">${"★".repeat(stjarnor)}${"☆".repeat(3 - stjarnor)}</div>
-      <p class="lead" style="margin:6px auto">${text}</p>
-      <p>Rätt på första försöket: <b>${res}</b></p>
-    </div>
-    <div class="panel"><h3 style="margin:0 0 4px">Ord du har tränat på</h3>
-      <table class="words">${ord.map(o => `<tr><td><b>${esc(o.ord)}</b>${o.fack ? `<br><span class="small">${esc(o.fack)}</span>` : ""}</td><td>${hogtalare(o.ord + (o.fack ? ", " + o.fack : ""))}</td></tr>`).join("")}</table>
-    </div>
-    <div class="center"><button class="btn" id="igen">Spela igen</button></div>`);
-  tala(text);
-  document.getElementById("igen").onclick = () => { nyttPass(); besokIntro(); };
-}
-
-startSkarm();
+  </a>`).join("");
 </script>
 </body>
 </html>
