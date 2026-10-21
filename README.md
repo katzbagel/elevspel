@@ -6,11 +6,11 @@ Framsida: https://katzbagel.github.io/elevspel/
 
 - `index.html` – framsidan där eleven väljer spel. Spelen listas i objektet `SPEL` högst upp i skriptet. Ett nytt spel läggs i en egen mapp och får en rad där.
 
-## Ett pass – ett arbetspass i hemtjänsten
+## Ett pass – ett arbetspass i hemtjänsten eller på särskilt boende
 
 Adress: https://katzbagel.github.io/elevspel/ett-pass/
 
-- `ett-pass/index.html` – hela spelet. Innehållet (uppdrag, ord, förklaringar) ligger i objektet `PASS` högst upp i skriptet.
+- `ett-pass/index.html` – hela spelet. Innehållet ligger högst upp i skriptet: `PLATSER` (arbetsplatser, brukare, rum) och `FALL` (situationerna). Lärarläge: lägg till `#larare` i adressen.
 - `ett-pass/bilder/` – illustrationer i WebP-format.
 
 ## Skillnaden – ord som ligger nära varandra

@@ -95,6 +95,17 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 .words{width:100%;border-collapse:collapse;margin-top:10px;font-size:17px}
 .words td{padding:8px 6px;border-bottom:1px solid var(--line)}
 .words td:last-child{width:52px;text-align:right}
+/* Arbetsplatsval */
+.titel{text-align:center;font-size:clamp(34px,8vw,56px);margin:18px 0 4px}
+.platser{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+.platskort{background:var(--card);border-radius:var(--radius);overflow:hidden;box-shadow:0 3px 0 var(--line);text-align:center;padding:0 0 12px;display:flex;flex-direction:column;gap:4px}
+.platskort:active{transform:translateY(2px)}
+.platsbild{display:block;aspect-ratio:16/9;background:center/cover}
+.platskort b{font-size:20px;padding-top:8px}
+.flikar{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.flik{padding:10px 18px;border-radius:999px;border:2px solid var(--line);background:#fff;font-weight:700;min-height:44px}
+.flik.vald{background:var(--accent);border-color:var(--accent);color:#fff}
+@media (max-width:560px){.platser{grid-template-columns:1fr}}
 /* Lärarläge */
 .lararknappar{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
 .lararknappar .btn{min-height:46px;padding:10px 20px;font-size:17px}
@@ -129,24 +140,63 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
    Uppgiftstyper: hamta (välj föremål), forsta (vad menar brukaren),
                   handla (vad gör du), visa (peka på kroppsdel, ratt: "kna" osv.)
    tema: hjalpmedel | symtom | kropp | ansvar | hygien
-   krav: { kon: "man" } om fallet bara passar vissa brukare
+   rum:  sovrum | vardagsrum | kok | badrum | korridor
+         Varje arbetsplats visar rummen på sitt sätt (se PLATSER).
+         Ett fall spelas bara där alla dess rum finns.
+   plats: ["boende"] om fallet bara hör hemma på en arbetsplats
+   krav: { kon: "man" }              bara män/kvinnor
+         { rorlighet: ["gar"] }      gar | rullstol | sang
+         { demens: true }            bara brukare med demens
+         { inte: ["yusuf"] }         aldrig dessa brukare
    rapport: { text, ratt: true } = ska rapporteras
             { text, ratt: false } = prioriteringsfälla (dokumentera)
    ========================================================== */
 const SPEL = {
   titel: "Ett pass",
-  undertitel: "Hemtjänsten",
-  intro: "Du jobbar i hemtjänsten i dag. Du ska besöka tre personer. Lyssna noga och hjälp dem.",
-  sjukskoterska: { namn: "Lena", bild: "sjukskoterska" },
   uppgifterPerPass: 12,
   maxRapport: 4          // högst så många saker att rapportera i ett slumpat pass
 };
 
-const BRUKARE = [
-  { id: "karin", namn: "Karin", kon: "kvinna", intro: "Karin är 84 år och bor ensam i en lägenhet." },
-  { id: "ahmed", namn: "Ahmed", kon: "man", intro: "Ahmed är 78 år och bor i ett radhus." },
-  { id: "gunnar", namn: "Gunnar", kon: "man", intro: "Gunnar är 91 år och bor ensam i ett gammalt hus." }
-];
+const PLATSER = {
+  hemtjanst: {
+    namn: "Hemtjänsten",
+    intro: "Du jobbar i hemtjänsten i dag. Du ska besöka tre personer. Lyssna noga och hjälp dem.",
+    startbild: "startbild",
+    sjukskoterska: { namn: "Lena", bild: "sjukskoterska", hon: true },
+    rum: {
+      sovrum:     { namn: "Sovrum",     bild: "miljo_sovrum" },
+      vardagsrum: { namn: "Vardagsrum", bild: "miljo_vardagsrum" },
+      kok:        { namn: "Kök",        bild: "miljo_kok" },
+      badrum:     { namn: "Badrum",     bild: "miljo_badrum" }
+    },
+    brukare: [
+      { id: "karin",  namn: "Karin",  kon: "kvinna", rorlighet: "gar", intro: "Karin är 84 år och bor ensam i en lägenhet." },
+      { id: "ahmed",  namn: "Ahmed",  kon: "man",    rorlighet: "gar", intro: "Ahmed är 78 år och bor i ett radhus." },
+      { id: "gunnar", namn: "Gunnar", kon: "man",    rorlighet: "gar", intro: "Gunnar är 91 år och bor ensam i ett gammalt hus." }
+    ]
+  },
+  boende: {
+    namn: "Särskilt boende",
+    intro: "Du jobbar på ett särskilt boende i dag. Du ska hjälpa tre personer. Lyssna och titta noga.",
+    startbild: "startbild_boende",
+    sjukskoterska: { namn: "Daniel", bild: "sjukskoterska_boende", hon: false },
+    rum: {
+      sovrum:     { namn: "Lägenheten", bild: "miljo_lagenhet" },
+      vardagsrum: { namn: "Lägenheten", bild: "miljo_lagenhet" },
+      kok:        { namn: "Matsalen",   bild: "miljo_matsal" },
+      badrum:     { namn: "Badrummet",  bild: "miljo_badrum_boende" },
+      korridor:   { namn: "Korridoren", bild: "miljo_korridor" }
+    },
+    brukare: [
+      { id: "birgitta", namn: "Birgitta", kon: "kvinna", rorlighet: "gar", demens: true, uttryck: ["orolig"],
+        intro: "Birgitta är 88 år och har demens. Hon går omkring mycket och vill ofta hem." },
+      { id: "yusuf", namn: "Yusuf", kon: "man", rorlighet: "rullstol",
+        intro: "Yusuf är 82 år. Han har haft en stroke och kan inte röra sin högra arm. Han sitter i rullstol." },
+      { id: "margit", namn: "Margit", kon: "kvinna", rorlighet: "sang", rum: ["sovrum", "vardagsrum"],
+        intro: "Margit är 93 år. Hon är mycket svag och ligger i sängen nästan hela dagen." }
+    ]
+  }
+};
 
 const TEMAN = { hjalpmedel: "Hjälpmedel", symtom: "Symtom", kropp: "Kroppen", ansvar: "Handling och ansvar", hygien: "Hygien" };
 
@@ -160,15 +210,15 @@ const FALL = [
           { ikon: "tofflor", text: "Tofflor", forklaring: "Det där är tofflor. Man har dem på fötterna inomhus. Stödstrumpor är långa och sitter hårt runt benen." },
           { ikon: "sockor", text: "Sockor", forklaring: "Det där är vanliga sockor. Stödstrumpor är längre och sitter hårt runt benen." } ] } ] },
 
-  { id: "rollator", titel: "Rollator", tema: "hjalpmedel",
+  { id: "rollator", titel: "Rollator", tema: "hjalpmedel", krav: { rorlighet: ["gar"] },
     uppgifter: [
-      { typ: "hamta", rum: "vardagsrum", hor: "{namn} vill gå till köket. Hämta {hens} rollator.", fraga: "Vad ska du hämta?",
+      { typ: "hamta", rum: "vardagsrum", hor: "{namn} vill gå och äta. Hämta {hens} rollator.", fraga: "Vad ska du hämta?",
         alternativ: [
           { ikon: "rollator", text: "Rollator", ratt: true, forklaring: "Rätt! En rollator har hjul och handtag. Man går med den och kan vila på sitsen." },
           { ikon: "rullstol", text: "Rullstol", forklaring: "Det där är en rullstol. Man sitter i den. {namn} vill gå själv." },
           { ikon: "kryckor", text: "Kryckor", forklaring: "Det där är kryckor. En rollator har hjul." } ] } ] },
 
-  { id: "duschstol", titel: "Duschstol", tema: "hjalpmedel",
+  { id: "duschstol", titel: "Duschstol", tema: "hjalpmedel", krav: { rorlighet: ["gar", "rullstol"] },
     uppgifter: [
       { typ: "hamta", rum: "badrum", hor: "{namn} ska duscha. {Hen} behöver sitta.", fraga: "Vad ska {hen} sitta på?",
         alternativ: [
@@ -217,7 +267,7 @@ const FALL = [
           { ikon: "tvattlapp", text: "Tvättlapp", forklaring: "En tvättlapp tvättar man huden med. Den är inget skydd." } ] } ] },
 
   /* ---------- Symtom ---------- */
-  { id: "yrsel", titel: "Yrsel vid uppresning", tema: "symtom",
+  { id: "yrsel", titel: "Yrsel vid uppresning", tema: "symtom", krav: { rorlighet: ["gar"] },
     uppgifter: [
       { typ: "forsta", rum: "sovrum", humor: "ont", sager: "Det snurrar i huvudet när jag reser mig.", fraga: "Vad menar {namn}?",
         alternativ: [
@@ -272,9 +322,9 @@ const FALL = [
           { text: "Illamående", fack: "nausea", forklaring: "Illamående betyder att man mår illa. {namn} har inte bajsat på fyra dagar." } ] } ],
     rapport: { text: "{namn} har inte bajsat på fyra dagar", ratt: true, forklaring: "Ja. Förstoppning kan ge ont och göra en äldre person förvirrad." } },
 
-  { id: "andfadd", titel: "Andfådd", tema: "symtom",
+  { id: "andfadd", titel: "Andfådd", tema: "symtom", krav: { rorlighet: ["gar"] },
     uppgifter: [
-      { typ: "forsta", rum: "vardagsrum", humor: "ont", sager: "Jag får inte luft när jag går till köket.", fraga: "Vad menar {namn}?",
+      { typ: "forsta", rum: "vardagsrum", humor: "ont", sager: "Jag får inte luft när jag går en bit.", fraga: "Vad menar {namn}?",
         alternativ: [
           { text: "Andfåddhet", fack: "dyspné", ratt: true, forklaring: "Rätt! Att inte få luft heter att vara andfådd. Fackordet är dyspné." },
           { text: "Hosta", fack: "", forklaring: "Hosta betyder att man hostar. {namn} säger att {hen} inte får luft." },
@@ -365,9 +415,9 @@ const FALL = [
     rapport: { text: "{namn} har slagit i armbågen lite", ratt: false, forklaring: "Skriv det i dokumentationen. Rapportera direkt om det blir svullet, blått eller gör mycket ont." } },
 
   /* ---------- Handling och ansvar ---------- */
-  { id: "golvet", titel: "Ligger på golvet", tema: "ansvar",
+  { id: "golvet", titel: "Ligger på golvet", tema: "ansvar", krav: { rorlighet: ["gar"] },
     uppgifter: [
-      { typ: "handla", rum: "sovrum", humor: "ont", hor: "{namn} ligger på golvet när du kommer.", fraga: "Vad gör du först?",
+      { typ: "handla", rum: "sovrum", humor: "ont", hor: "{namn} ligger på golvet när du kommer in.", fraga: "Vad gör du först?",
         alternativ: [
           { text: "Frågar hur {hen} mår och om {hen} har ont", ratt: true, forklaring: "Rätt! Lyft inte direkt. Fråga först och titta efter skador. Larma sedan enligt rutin." },
           { text: "Lyfter upp {henne} direkt", forklaring: "Nej. {namn} kan ha brutit något. Lyft inte innan du vet hur {hen} mår." },
@@ -381,7 +431,112 @@ const FALL = [
         alternativ: [
           { text: "Spritar händerna", ratt: true, forklaring: "Rätt! Sprita händerna efter varje vårdmoment. Det stoppar smitta." },
           { text: "Torkar händerna på byxorna", forklaring: "Nej. Då sprider du bakterier till kläderna." },
-          { text: "Går direkt till köket", forklaring: "Nej. Då kan du sprida bakterier till maten." } ] } ] }
+          { text: "Går direkt till köket", forklaring: "Nej. Då kan du sprida bakterier till maten." } ] } ] },
+
+  /* ---------- Särskilt boende ---------- */
+  { id: "personlyft", titel: "Personlyft", tema: "hjalpmedel", plats: ["boende"], krav: { rorlighet: ["rullstol", "sang"] },
+    uppgifter: [
+      { typ: "hamta", rum: "sovrum", hor: "{namn} kan inte stå själv. {Hen} ska flytta från sängen till rullstolen.", fraga: "Vad behöver ni?",
+        alternativ: [
+          { ikon: "personlyft", text: "Personlyft", ratt: true, forklaring: "Rätt! Med en personlyft och en lyftsele kan ni flytta {namn} säkert. Det skyddar både {henne} och din rygg." },
+          { ikon: "gabord", text: "Gåbord", forklaring: "Ett gåbord är till för den som kan gå med stöd. {namn} kan inte stå." },
+          { ikon: "rollator", text: "Rollator", forklaring: "En rollator är till för den som kan gå. {namn} kan inte stå." } ] } ] },
+
+  { id: "glidlakan", titel: "Glidlakan", tema: "hjalpmedel", plats: ["boende"], krav: { rorlighet: ["sang"] },
+    uppgifter: [
+      { typ: "hamta", rum: "sovrum", hor: "{namn} har glidit ner i sängen. Ni ska hjälpa {henne} högre upp.", fraga: "Vad lägger ni under {henne}?",
+        alternativ: [
+          { ikon: "glidlakan", text: "Glidlakan", ratt: true, forklaring: "Rätt! Glidlakanet är halt. Det minskar friktionen, så huden på ryggen inte skadas när ni flyttar {henne}." },
+          { ikon: "draglakan", text: "Draglakan", forklaring: "Ett draglakan är av vanligt tyg. Det glider inte. Glidlakanet är halt och skyddar huden." },
+          { ikon: "handduk", text: "Handduk", forklaring: "En handduk glider inte. Ni behöver ett glidlakan." } ] } ] },
+
+  { id: "gabord", titel: "Gåbord", tema: "hjalpmedel", plats: ["boende"], krav: { rorlighet: ["gar"] },
+    uppgifter: [
+      { typ: "hamta", rum: "korridor", hor: "{namn} är ostadig när {hen} går. {Hen} behöver stöd under armarna.", fraga: "Vad ska {hen} gå med?",
+        alternativ: [
+          { ikon: "gabord", text: "Gåbord", ratt: true, forklaring: "Rätt! På ett gåbord vilar man underarmarna. Det ger mer stöd än en rollator." },
+          { ikon: "rollator", text: "Rollator", forklaring: "Med en rollator håller man i handtagen. Den ger inget stöd under armarna." },
+          { ikon: "kryckor", text: "Kryckor", forklaring: "Kryckor kräver god balans. {namn} är ostadig och behöver mer stöd." } ] } ] },
+
+  { id: "pipmugg", titel: "Pipmugg", tema: "hjalpmedel", plats: ["boende"], krav: { rorlighet: ["sang"] },
+    uppgifter: [
+      { typ: "hamta", rum: "sovrum", hor: "{namn} ska dricka. {Hen} har svårt att hålla i ett glas.", fraga: "Vad ger du {henne}?",
+        alternativ: [
+          { ikon: "pipmugg", text: "Pipmugg", ratt: true, forklaring: "Rätt! En pipmugg har lock, pip och två handtag. Den är lätt att hålla och spiller inte." },
+          { ikon: "urinflaska", text: "Urinflaska", forklaring: "Det där är en urinflaska. Den är till för att kissa i, inte för att dricka ur!" },
+          { ikon: "backen", text: "Bäcken", forklaring: "Det där är ett bäcken. Det används när man behöver kissa eller bajsa i sängen." } ] } ] },
+
+  { id: "dysfagi", titel: "Sätter i halsen", tema: "symtom",
+    uppgifter: [
+      { typ: "forsta", rum: "sovrum", humor: "ont", sager: "Jag sätter i halsen när jag dricker.", fraga: "Vad menar {namn}?",
+        alternativ: [
+          { text: "Sväljsvårigheter", fack: "dysfagi", ratt: true, forklaring: "Rätt! Att sätta i halsen när man dricker kan betyda sväljsvårigheter. Fackordet är dysfagi." },
+          { text: "Ont i halsen", fack: "faryngit", forklaring: "Ont i halsen betyder att det gör ont. {namn} säger att {hen} sätter i halsen." },
+          { text: "Hosta", fack: "", forklaring: "Hosta kan komma när man sätter i halsen, men det {namn} beskriver är svårt att svälja." } ] },
+      { typ: "handla", rum: "sovrum", hor: "{namn} har svårt att svälja.", fraga: "Hur ska {hen} sitta när {hen} dricker?",
+        alternativ: [
+          { text: "Upprätt, med huvudet lite framåt", ratt: true, forklaring: "Rätt! Sitter man upprätt med hakan lite ner är det lättare att svälja. Då kommer det inte ner i luftstrupen." },
+          { text: "Liggande", forklaring: "Nej. Om man ligger kan drycken komma ner i lungorna." },
+          { text: "Med huvudet bakåt", forklaring: "Nej. Med huvudet bakåt är luftstrupen öppen. Då är det lätt att sätta i halsen." } ] } ],
+    rapport: { text: "{namn} sätter i halsen när {hen} dricker", ratt: true, forklaring: "Ja. Sväljsvårigheter kan ge lunginflammation. Sjuksköterskan behöver veta det." } },
+
+  { id: "vill_hem", titel: "Vill gå hem", tema: "ansvar", plats: ["boende"], krav: { demens: true },
+    uppgifter: [
+      { typ: "handla", rum: "korridor", humor: "orolig", sager: "Jag måste gå hem nu. Barnen väntar.", fraga: "Vad gör du?",
+        alternativ: [
+          { text: "Följer med lugnt och pratar om barnen", ratt: true, forklaring: "Rätt! Gå med {henne}, lyssna och prata om det {hen} tycker om. Då brukar oron släppa." },
+          { text: "Säger bestämt att {hen} bor här nu", forklaring: "Nej. Det kan göra {namn} ännu mer orolig och ledsen." },
+          { text: "Låser dörren och går", forklaring: "Nej. Att låsa in någon är en tvångsåtgärd. Du får inte göra det." } ] } ],
+    rapport: { text: "{namn} var orolig och ville gå hem", ratt: false, forklaring: "Skriv det i dokumentationen. Rapportera om oron blir värre." } },
+
+  { id: "sanggrind", titel: "Sänggrind", tema: "ansvar", plats: ["boende"],
+    uppgifter: [
+      { typ: "handla", rum: "sovrum", hor: "En kollega vill fälla upp grindarna på båda sidor av {namn}s säng i natt.", fraga: "Vad gör du?",
+        alternativ: [
+          { text: "Kontrollerar att det finns ett beslut och att {namn} vill", ratt: true, forklaring: "Rätt! Sänggrindar kan vara en begränsning. Det måste finnas en bedömning, och {namn} måste vilja." },
+          { text: "Fäller upp dem direkt", forklaring: "Nej. Sänggrindar får inte sättas upp utan bedömning och samtycke." },
+          { text: "Fäller upp dem när {hen} har somnat", forklaring: "Nej. Det är att begränsa {namn} utan att {hen} vet om det." } ] } ] },
+
+  { id: "pares", titel: "Kan inte röra armen", tema: "symtom", krav: { inte: ["yusuf"] },
+    uppgifter: [
+      { typ: "forsta", rum: "vardagsrum", humor: "ont", sager: "Jag kan inte röra min högra arm. Det började nyss.", fraga: "Vad kan det vara?",
+        alternativ: [
+          { text: "Förlamning", fack: "pares", ratt: true, forklaring: "Rätt! Att plötsligt inte kunna röra en arm kan vara en förlamning. Fackordet är pares." },
+          { text: "Domning", fack: "parestesi", forklaring: "Domning betyder att det sticker eller känns bortdomnat. {namn} kan inte röra armen alls." },
+          { text: "Kramp", fack: "", forklaring: "Kramp betyder att en muskel drar ihop sig. {namn} kan inte röra armen." } ] },
+      { typ: "handla", rum: "vardagsrum", humor: "ont", hor: "{namn} kan plötsligt inte röra armen.", fraga: "Vad gör du?",
+        alternativ: [
+          { text: "Larmar sjuksköterskan direkt", ratt: true, forklaring: "Rätt! Plötslig förlamning kan vara en stroke. Det är akut. Varje minut räknas." },
+          { text: "Väntar och ser om det går över", forklaring: "Nej. Vid stroke är tiden viktig. Larma direkt." },
+          { text: "Lägger en värmekudde på armen", forklaring: "Nej. Det hjälper inte. Det kan vara en stroke. Larma direkt." } ] } ],
+    rapport: { text: "{namn} kan plötsligt inte röra högra armen", ratt: true, forklaring: "Ja. Det kan vara en stroke. Det är akut." } },
+
+  { id: "viktnedgang", titel: "Kläderna sitter löst", tema: "symtom",
+    uppgifter: [
+      { typ: "forsta", rum: "sovrum", sager: "Mina kläder sitter så löst nu.", fraga: "Vad kan det betyda?",
+        alternativ: [
+          { text: "Viktnedgång", fack: "viktminskning", ratt: true, forklaring: "Rätt! Om kläderna blir för stora har man kanske gått ner i vikt. Det kan vara undernäring." },
+          { text: "Svullnad", fack: "ödem", forklaring: "Vid svullnad blir kläderna trängre, inte lösare." },
+          { text: "Trötthet", fack: "fatigue", forklaring: "Trötthet syns inte på kläderna. {namn} säger att de sitter löst." } ] } ],
+    rapport: { text: "{namn}s kläder sitter löst", ratt: true, forklaring: "Ja. Viktnedgång kan vara undernäring. {Hen} behöver vägas." } },
+
+  { id: "vanda", titel: "Ligger på samma sida", tema: "ansvar", krav: { rorlighet: ["sang"] },
+    uppgifter: [
+      { typ: "handla", rum: "sovrum", hor: "{namn} har legat på samma sida länge.", fraga: "Vad gör du?",
+        alternativ: [
+          { text: "Vänder {henne} enligt schemat", ratt: true, forklaring: "Rätt! Man ska byta ställning ofta. Annars kan det bli trycksår." },
+          { text: "Väntar till kvällen", forklaring: "Nej. Om {hen} ligger för länge på samma ställe kan det bli trycksår." },
+          { text: "Lägger en extra kudde under huvudet", forklaring: "Nej. Det hjälper inte mot trycket på kroppen. {namn} behöver vändas." } ] } ] },
+
+  { id: "smarta_demens", titel: "Smärta vid demens", tema: "symtom", krav: { demens: true },
+    uppgifter: [
+      { typ: "handla", rum: "kok", humor: "ont", hor: "{namn} vill inte äta i dag. {Hen} är orolig och håller sig om magen.", fraga: "Vad kan det vara?",
+        alternativ: [
+          { text: "{Hen} kan ha ont", ratt: true, forklaring: "Rätt! Personer med demens kan ofta inte säga att de har ont. Titta på hur de beter sig." },
+          { text: "{Hen} är bara på dåligt humör", forklaring: "Det kan vara smärta. Personer med demens visar ofta smärta genom oro eller att de inte vill äta." },
+          { text: "{Hen} tycker inte om maten", forklaring: "Kanske, men {hen} håller sig om magen. Det kan vara smärta." } ] } ],
+    rapport: { text: "{namn} verkar ha ont i magen", ratt: true, forklaring: "Ja. Smärta vid demens syns i beteendet. Sjuksköterskan behöver bedöma den." } }
+
 ];
 
 /* Rader som aldrig ska rapporteras – fyller ut rapporten */
@@ -402,7 +557,6 @@ const DELAR = {
   fotled:  { text: "Fotled",   best: "fotleden",  var: "längst ner på benet, ovanför foten" }
 };
 
-const RUM = { sovrum: "Sovrum", kok: "Kök", vardagsrum: "Vardagsrum", badrum: "Badrum" };
 
 /* ==========================================================
    IKONER (SVG) – föremål som eleven väljer bland
@@ -423,7 +577,7 @@ const IKON = {
   hink: `<path ${S} fill="#a8c08f" d="M22 36h56l-7 50H29z"/><ellipse ${S} fill="#8aa774" cx="50" cy="36" rx="28" ry="6"/><path ${S} fill="none" d="M22 36c0-26 56-26 56 0"/>`
 };
 /* Föremål med egen bild i bilder/hm_<namn>.webp. Saknas namnet här används SVG-ikonen ovan. */
-const HM_BILDER = ["backen", "duschstol", "hink", "kryckor", "nattstol", "rollator", "rullstol", "sockor", "stodstrumpor", "tofflor", "urinflaska", "koksstol", "horapparat", "glasogon", "tandprotes", "trygghetslarm", "klocka", "nyckel", "inkontinensskydd", "handduk", "tvattlapp"];
+const HM_BILDER = ["backen", "duschstol", "hink", "kryckor", "nattstol", "rollator", "rullstol", "sockor", "stodstrumpor", "tofflor", "urinflaska", "koksstol", "horapparat", "glasogon", "tandprotes", "trygghetslarm", "klocka", "nyckel", "inkontinensskydd", "handduk", "tvattlapp", "personlyft", "glidlakan", "draglakan", "gabord", "pipmugg"];
 const ikon = n => HM_BILDER.includes(n)
   ? `<img class="hm" src="bilder/hm_${n}.webp" alt="" draggable="false">`
   : `<svg viewBox="0 0 100 100" aria-hidden="true">${IKON[n] || ""}</svg>`;
@@ -485,23 +639,40 @@ const fyll = (t, b) => !t ? t : t
   .replace(/\{henne\}/g, b.kon === "man" ? "honom" : "henne")
   .replace(/\{hens\}/g, b.kon === "man" ? "hans" : "hennes");
 
-/* Ett fall kan spelas om alla bilder det behöver finns */
+/* Vilka fall kan spelas var, och av vem */
 const saknadeBilder = f => f.uppgifter.flatMap(u => u.typ === "hamta" ? u.alternativ.map(a => a.ikon) : []).filter(n => !HM_BILDER.includes(n) && !IKON[n]);
 const spelbart = f => saknadeBilder(f).length === 0;
-const passar = (f, b) => !f.krav || !f.krav.kon || f.krav.kon === b.kon;
+const fallRum = f => [...new Set(f.uppgifter.map(u => u.rum))];
+const finnsPa = (f, p) => (!f.plats || f.plats.includes(p)) && fallRum(f).every(r => PLATSER[p].rum[r]);
+const passar = (f, b) => {
+  const k = f.krav || {};
+  if (k.kon && k.kon !== b.kon) return false;
+  if (k.rorlighet && !k.rorlighet.includes(b.rorlighet)) return false;
+  if (k.demens && !b.demens) return false;
+  if (k.inte && k.inte.includes(b.id)) return false;
+  if (b.rum && !fallRum(f).every(r => b.rum.includes(r))) return false;
+  return true;
+};
+const fallPa = p => FALL.filter(f => spelbart(f) && finnsPa(f, p) && PLATSER[p].brukare.some(b => passar(f, b)));
 
-function valdaFallFranLank() {
-  const m = location.hash.match(/fall=([\w,-]+)/);
-  if (!m) return null;
-  const ids = m[1].split(",");
-  const fall = FALL.filter(f => ids.includes(f.id) && spelbart(f));
-  return fall.length ? fall : null;
+function lankInfo() {
+  const h = location.hash;
+  const pm = h.match(/plats=(\w+)/), fm = h.match(/fall=([\w,-]+)/);
+  const plats = pm && PLATSER[pm[1]] ? pm[1] : (fm ? "hemtjanst" : null);
+  let fall = null;
+  if (fm && plats) {
+    const ids = fm[1].split(",");
+    fall = fallPa(plats).filter(f => ids.includes(f.id));
+    if (!fall.length) fall = null;
+  }
+  return { plats, fall };
 }
 
 /* Bygger ett pass: tre brukare, fall fördelade på dem, rapport av det som hände */
-function byggPass(lararFall) {
-  const brukare = shuffle(BRUKARE).slice(0, 3).map(b => ({ b, fall: [], n: 0 }));
-  const pool = shuffle(lararFall || FALL.filter(spelbart));
+function byggPass(p, lararFall) {
+  const P = PLATSER[p];
+  const brukare = shuffle(P.brukare).slice(0, 3).map(b => ({ b, fall: [], n: 0 }));
+  const pool = shuffle(lararFall || fallPa(p));
   const mal = lararFall ? Infinity : SPEL.uppgifterPerPass;
   let total = 0, rapportFall = 0;
   for (const f of pool) {
@@ -518,7 +689,6 @@ function byggPass(lararFall) {
     b: s.b,
     uppgifter: shuffle(s.fall).flatMap(f => f.uppgifter.map(u => ({ u, f })))
   }));
-  /* Rapport */
   const ratt = [], fallor = [];
   brukare.forEach(s => s.fall.forEach(f => {
     if (!f.rapport) return;
@@ -536,10 +706,16 @@ function byggPass(lararFall) {
   return { besok, rapport: ratt.length ? { rader: shuffle(rader), antal: ratt.length } : null };
 }
 
-function nyttPass() {
-  st = { pass: byggPass(valdaFallFranLank()), b: 0, u: -1, poang: 0, klara: 0, ord: [] };
+function nyttPass(p) {
+  const l = lankInfo();
+  st = { plats: p, pass: byggPass(p, l.plats === p ? l.fall : null), b: 0, u: -1, poang: 0, klara: 0, ord: [] };
 }
+const P = () => PLATSER[st.plats];
 const antalUppgifter = () => st.pass.besok.reduce((n, v) => n + v.uppgifter.length, 0);
+const ansikte = (b, humor) => {
+  if (humor === "neutral" || humor === "glad" || humor === "ont") return img(b.id + "_" + humor);
+  return img(b.id + "_" + ((b.uttryck || []).includes(humor) ? humor : "neutral"));
+};
 
 function toppRad() {
   const tot = antalUppgifter() + (st.pass.rapport ? 1 : 0);
@@ -559,23 +735,40 @@ function visa(html) {
   };
   window.scrollTo(0, 0);
 }
+const basta = p => { try { return localStorage.getItem("ettpass_basta_" + p); } catch (e) { return null; } };
 
 /* --- Start --- */
 function startSkarm() {
   if (LARARE) { lararSkarm(); return; }
-  let basta = null;
-  try { basta = localStorage.getItem("ettpass_basta2"); } catch (e) {}
-  const lf = valdaFallFranLank();
-  visa(`<div class="hero" style="background-image:url(${img("startbild")})">
-      <h1>${SPEL.titel}</h1><p>${SPEL.undertitel}</p></div>
+  const l = lankInfo();
+  if (l.plats) { platsStart(l.plats, l.fall); return; }
+  visa(`<h1 class="titel">${SPEL.titel}</h1>
+    <p class="lead center" style="margin-top:0">Välj var du ska jobba i dag.</p>
+    <div class="platser">${Object.keys(PLATSER).map(k => {
+      const p = PLATSER[k], bt = basta(k);
+      return `<button class="platskort" data-plats="${k}">
+        <span class="platsbild" style="background-image:url(${img(p.startbild)})"></span>
+        <b>${p.namn}</b>${bt ? `<span class="small">Bästa: ${bt}</span>` : ""}</button>`;
+    }).join("")}</div>
+    <p class="small center">Tips: sätt på ljudet. Allt läses upp.</p>
+    <p class="small center"><a href="../" style="color:var(--soft)">← Alla spel</a></p>`);
+  app.querySelectorAll("[data-plats]").forEach(b => b.onclick = () => { tala(PLATSER[b.dataset.plats].namn); platsStart(b.dataset.plats, null); });
+}
+
+function platsStart(p, lf) {
+  const pl = PLATSER[p], bt = basta(p);
+  visa(`<div class="hero" style="background-image:url(${img(pl.startbild)})">
+      <h1>${SPEL.titel}</h1><p>${pl.namn}</p></div>
     <div class="center">
-      <p class="lead">${SPEL.intro}</p>
+      <p class="lead">${pl.intro}</p>
       ${lf ? `<p class="small">Din lärare har valt ${lf.length} situationer till det här passet.</p>` : ""}
       <button class="btn" id="go">Starta passet</button>
-      <p class="small">Tips: sätt på ljudet. Allt läses upp.${basta ? `<br>Ditt bästa resultat: ${basta} rätt` : ""}</p>
-      <p class="small"><a href="../" style="color:var(--soft)">← Alla spel</a></p>
+      <p class="small">Tips: sätt på ljudet. Allt läses upp.${bt ? `<br>Ditt bästa resultat: ${bt} rätt` : ""}</p>
+      <p class="small">${lf ? "" : `<a href="#" id="byt" style="color:var(--soft)">← Byt arbetsplats</a> · `}<a href="../" style="color:var(--soft)">Alla spel</a></p>
     </div>`);
-  document.getElementById("go").onclick = () => { nyttPass(); tala(SPEL.intro); besokIntro(); };
+  document.getElementById("go").onclick = () => { nyttPass(p); tala(pl.intro); besokIntro(); };
+  const byt = document.getElementById("byt");
+  if (byt) byt.onclick = e => { e.preventDefault(); history.replaceState(null, "", location.pathname); startSkarm(); };
 }
 
 /* --- Besök --- */
@@ -596,7 +789,7 @@ function uppdrag() {
   const b = v.b;
   const u = v.uppgifter[st.u].u;
   const F = t => fyll(t, b);
-  const humor = u.humor || "neutral";
+  const rum = P().rum[u.rum];
   const sager = F(u.sager), hor = F(u.hor), fraga = F(u.fraga);
   const replik = sager ? `<div class="txt quote">${esc(sager)}</div>` : `<div class="txt">${esc(hor)}</div>`;
   const uppl = sager ? `${b.namn} säger: ${sager}` : hor;
@@ -606,7 +799,7 @@ function uppdrag() {
     alts = Object.keys(DELAR).map(d => {
       const x = DELAR[d];
       return d === u.ratt
-        ? { del: d, text: x.text, ratt: true, forklaring: `Rätt! Det där är ${x.best}. Den sitter ${x.var}.`.replace("Den sitter", d === "kna" ? "Det sitter" : "Den sitter") }
+        ? { del: d, text: x.text, ratt: true, forklaring: `Rätt! Det där är ${x.best}. ${d === "kna" ? "Det" : "Den"} sitter ${x.var}.` }
         : { del: d, text: x.text, forklaring: `Det där är ${x.best}. ${r.best[0].toUpperCase() + r.best.slice(1)} sitter ${r.var}.` };
     });
   } else {
@@ -621,9 +814,9 @@ function uppdrag() {
     alternativHTML = `<div class="list">${alts.map((a, i) => `<button class="opt" data-i="${i}">${esc(a.text)}${u.typ === "forsta" && a.fack ? `<span class="fack">${esc(a.fack)}</span>` : ""}</button>`).join("")}</div>`;
   }
   visa(`${toppRad()}
-    <div class="scene" style="background-image:url(${img("miljo_" + u.rum)})">
-      <span class="room">${RUM[u.rum]}</span>
-      <div class="patient" id="pat"><img src="${img(b.id + "_" + humor)}" alt="${b.namn}"><b>${b.namn}</b></div>
+    <div class="scene" style="background-image:url(${img(rum.bild)})">
+      <span class="room">${rum.namn}</span>
+      <div class="patient" id="pat"><img src="${ansikte(b, u.humor || "neutral")}" alt="${b.namn}"><b>${b.namn}</b></div>
     </div>
     <div class="panel">
       <div class="say">${replik}${hogtalare(uppl + ". " + fraga)}</div>
@@ -676,8 +869,9 @@ function nasta() {
 
 /* --- Rapport --- */
 function rapport() {
-  const r = st.pass.rapport, s = SPEL.sjukskoterska;
-  const uppmaning = `Passet är snart slut. Ring sjuksköterskan ${s.namn}. Välj ${r.antal === 1 ? "det" : "de " + r.antal + " saker"} som hon måste få veta.`;
+  const r = st.pass.rapport, s = P().sjukskoterska;
+  const pron = s.hon ? "hon" : "han";
+  const uppmaning = `Passet är snart slut. Ring sjuksköterskan ${s.namn}. Välj ${r.antal === 1 ? "det" : "de " + r.antal + " saker"} som ${pron} måste få veta.`;
   const alts = r.rader;
   const valda = new Set();
   visa(`${toppRad()}
@@ -726,8 +920,8 @@ function slut() {
   const stjarnor = andel >= .9 ? 3 : andel >= .6 ? 2 : 1;
   const procent = Math.round(andel * 100);
   try {
-    const gammal = parseInt(localStorage.getItem("ettpass_basta2")) || 0;
-    if (procent > gammal) localStorage.setItem("ettpass_basta2", procent + " %");
+    const gammal = parseInt(localStorage.getItem("ettpass_basta_" + st.plats)) || 0;
+    if (procent > gammal) localStorage.setItem("ettpass_basta_" + st.plats, procent + " %");
   } catch (e) {}
   const ord = st.ord.filter((o, i, a) => a.findIndex(x => x.ord === o.ord) === i);
   const text = stjarnor === 3 ? "Fantastiskt! Du har gjort ett jättebra pass." : stjarnor === 2 ? "Bra jobbat! Du klarade passet." : "Passet är klart. Spela igen så lär du dig mer!";
@@ -741,26 +935,36 @@ function slut() {
     <div class="panel"><h3 style="margin:0 0 4px">Ord du har tränat på</h3>
       <table class="words">${ord.map(o => `<tr><td><b>${esc(o.ord)}</b>${o.fack ? `<br><span class="small">${esc(o.fack)}</span>` : ""}</td><td>${hogtalare(o.ord + (o.fack ? ", " + o.fack : ""))}</td></tr>`).join("")}</table>
     </div>
-    <div class="center"><button class="btn" id="igen">Spela ett nytt pass</button></div>`);
+    <div class="center"><button class="btn" id="igen">Spela ett nytt pass</button>
+      ${lankInfo().fall ? "" : `<p class="small"><a href="#" id="byt" style="color:var(--soft)">Byt arbetsplats</a></p>`}</div>`);
   tala(text);
-  document.getElementById("igen").onclick = () => { nyttPass(); besokIntro(); };
+  document.getElementById("igen").onclick = () => { nyttPass(st.plats); besokIntro(); };
+  const byt = document.getElementById("byt");
+  if (byt) byt.onclick = e => { e.preventDefault(); history.replaceState(null, "", location.pathname); startSkarm(); };
 }
 
 /* --- Lärarläge (öppnas med #larare i adressen) --- */
-function lararSkarm() {
+function lararSkarm(p) {
+  p = p || "hemtjanst";
   const valda = new Set();
-  const grupper = Object.keys(TEMAN).map(t => ({ t, fall: FALL.filter(f => f.tema === t) })).filter(g => g.fall.length);
+  const finns = fallPa(p);
+  const grupper = Object.keys(TEMAN).map(t => ({ t, fall: FALL.filter(f => f.tema === t && finnsPa(f, p)) })).filter(g => g.fall.length);
+  const vem = f => {
+    const b = PLATSER[p].brukare.filter(x => passar(f, x));
+    return b.length === PLATSER[p].brukare.length ? "" : " · bara " + b.map(x => x.namn).join(", ");
+  };
   const rad = f => {
-    const ok = spelbart(f);
+    const ok = finns.includes(f);
     const n = f.uppgifter.length;
     const typer = [...new Set(f.uppgifter.map(u => ({ hamta: "hämta", forsta: "förstå", handla: "handla", visa: "visa" })[u.typ]))].join(", ");
     return `<button class="opt check${ok ? "" : " off"}" data-id="${f.id}" ${ok ? "" : "disabled"}>
       <span class="box"></span><span><b>${esc(f.titel)}</b>
-      <span class="why">${n} ${n === 1 ? "uppgift" : "uppgifter"}: ${typer}${f.rapport ? (f.rapport.ratt ? " · rapporteras" : " · prioriteringsfälla") : ""}${f.krav && f.krav.kon ? " · bara " + (f.krav.kon === "man" ? "män" : "kvinnor") : ""}${ok ? "" : " · saknar bild"}</span></span></button>`;
+      <span class="why">${n} ${n === 1 ? "uppgift" : "uppgifter"}: ${typer}${f.rapport ? (f.rapport.ratt ? " · rapporteras" : " · prioriteringsfälla") : ""}${ok ? vem(f) : " · saknar bild"}</span></span></button>`;
   };
   visa(`<div class="panel" style="margin-top:0">
       <h2 style="margin:0 0 6px">Lärarläge</h2>
-      <p style="margin:0">Välj situationer och kopiera länken. Eleverna som öppnar länken får ett pass med just de situationerna. Utan länk slumpar spelet ${SPEL.uppgifterPerPass} uppgifter ur hela banken.</p>
+      <p style="margin:0">Välj arbetsplats och situationer och kopiera länken. Eleverna som öppnar länken får ett pass med just de situationerna. Utan länk slumpar spelet ${SPEL.uppgifterPerPass} uppgifter ur hela banken.</p>
+      <div class="flikar">${Object.keys(PLATSER).map(k => `<button class="flik${k === p ? " vald" : ""}" data-flik="${k}">${PLATSER[k].namn}</button>`).join("")}</div>
       <div class="lararknappar"><button class="btn ghost" id="alla">Markera alla</button><button class="btn ghost" id="inga">Avmarkera alla</button></div>
     </div>
     ${grupper.map(g => `<div class="panel"><div class="temarad"><h3 style="margin:0">${TEMAN[g.t]}</h3>
@@ -770,19 +974,20 @@ function lararSkarm() {
       <input id="lanken" readonly placeholder="Länken visas här" aria-label="Länk till passet">
       <div class="lararknappar"><button class="btn" id="kopiera" disabled>Kopiera länk</button><button class="btn ghost" id="prova" disabled>Prova passet</button></div>
       <p class="small"><a href="../" style="color:var(--soft)">← Alla spel</a></p></div>`);
+  app.querySelectorAll("[data-flik]").forEach(b => b.onclick = () => lararSkarm(b.dataset.flik));
   const knappar = [...app.querySelectorAll(".opt[data-id]")];
   const uppdatera = () => {
-    knappar.forEach(k => { const p = valda.has(k.dataset.id); k.classList.toggle("sel", p); k.querySelector(".box").textContent = p ? "✓" : ""; });
-    const fall = FALL.filter(f => valda.has(f.id));
+    knappar.forEach(k => { const v = valda.has(k.dataset.id); k.classList.toggle("sel", v); k.querySelector(".box").textContent = v ? "✓" : ""; });
+    const fall = finns.filter(f => valda.has(f.id));
     const n = fall.reduce((s, f) => s + f.uppgifter.length, 0);
-    document.getElementById("summa").textContent = fall.length ? `${fall.length} situationer, ${n} uppgifter` : "Inga situationer valda";
-    const url = location.href.split("#")[0] + "#fall=" + fall.map(f => f.id).join(",");
+    document.getElementById("summa").textContent = fall.length ? `${PLATSER[p].namn}: ${fall.length} situationer, ${n} uppgifter` : "Inga situationer valda";
+    const url = location.href.split("#")[0] + "#plats=" + p + "&fall=" + fall.map(f => f.id).join(",");
     document.getElementById("lanken").value = fall.length ? url : "";
     document.getElementById("kopiera").disabled = document.getElementById("prova").disabled = !fall.length;
   };
   knappar.forEach(k => k.onclick = () => { const id = k.dataset.id; valda.has(id) ? valda.delete(id) : valda.add(id); uppdatera(); });
-  app.querySelectorAll("[data-tema]").forEach(b => b.onclick = () => { FALL.filter(f => f.tema === b.dataset.tema && spelbart(f)).forEach(f => valda.add(f.id)); uppdatera(); });
-  document.getElementById("alla").onclick = () => { FALL.filter(spelbart).forEach(f => valda.add(f.id)); uppdatera(); };
+  app.querySelectorAll("[data-tema]").forEach(b => b.onclick = () => { finns.filter(f => f.tema === b.dataset.tema).forEach(f => valda.add(f.id)); uppdatera(); });
+  document.getElementById("alla").onclick = () => { finns.forEach(f => valda.add(f.id)); uppdatera(); };
   document.getElementById("inga").onclick = () => { valda.clear(); uppdatera(); };
   document.getElementById("kopiera").onclick = async () => {
     const f = document.getElementById("lanken"), b = document.getElementById("kopiera");
