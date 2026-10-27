@@ -17,7 +17,7 @@ Adress: https://katzbagel.github.io/elevspel/ett-pass/
 
 Adress: https://katzbagel.github.io/elevspel/skillnaden/
 
-Mappen `skillnaden/` är ett eget spel för de svårare och mer abstrakta begreppen. Eleven tränar på skillnaden mellan ord som ligger nära varandra, till exempel symtom/tecken och kurativ/palliativ.
+Mappen `skillnaden/` är ett eget spel för de svårare och mer abstrakta begreppen. Eleven tränar på skillnaden mellan ord som ligger nära varandra, till exempel symtom/tecken, kurativ/palliativ och egenvård/delegering.
 
 - **Läge 1 – Sortera:** läs en situation och välj vilket av två ord som passar.
 - **Läge 2 – Fyll i:** välj rätt ord i rätt form i en mening.
