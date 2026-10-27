@@ -129,6 +129,9 @@ mark{background:var(--mark);color:var(--mark-ink);padding:0 3px;border-radius:3p
             <mark>...</mark> markerar det som ska bedömas.
    fyllI:   läge 2. [mening med ___, [rätt form, fel form, fel form], förklaring]
             Det första alternativet är alltid det rätta. Ordningen blandas i spelet.
+
+   Det går att lägga till hur många situationer och meningar som helst.
+   Varje runda drar ett urval, så fler uppgifter ger mer variation.
    ============================================================ */
 const GRUPPER = [
  {id:"symtom",
@@ -146,7 +149,17 @@ const GRUPPER = [
    ["Huden är blek och känns kall.",1,"Det ser du och känner med händerna. Patienten behöver inte säga något."],
    ["Patienten säger att han inte kan sova för att han är orolig.",0,"Oron är något som patienten själv upplever och berättar om."],
    ["Pulsen är 118 slag per minut.",1,"Pulsen räknar du. Det är ett mätvärde."],
-   ["Patienten klagar på att det kliar på ryggen.",0,"Klådan känner bara patienten."]
+   ["Patienten klagar på att det kliar på ryggen.",0,"Klådan känner bara patienten."],
+   ["Patienten säger att hon blir andfådd när hon går i trappan.",0,"Andfåddheten känner patienten själv och berättar om."],
+   ["Du hör att patienten rosslar när hon andas.",1,"Du hör det själv. Det är något du kan iaktta."],
+   ["Patienten berättar att hon har haft huvudvärk sedan i går.",0,"Huvudvärken känner bara patienten."],
+   ["Blodsockret är 2,8 mmol/l.",1,"Blodsockret är ett värde som du mäter."],
+   ["Patienten säger att det sticker i fötterna.",0,"Stickningarna känner patienten och berättar om."],
+   ["Du ser att patientens hud och ögonvitor är gula.",1,"Den gula färgen kan du se med egna ögon."],
+   ["Patienten säger att hon känner sig nedstämd och inte orkar något.",0,"Nedstämdheten upplever patienten själv."],
+   ["Urinen är mörk och luktar starkt.",1,"Du ser färgen och känner lukten själv."],
+   ["Patienten berättar att hon har svårt att svälja.",0,"Det är patienten som känner och berättar om besväret."],
+   ["Patienten har ett blåmärke på höger höft.",1,"Blåmärket kan du se."]
   ],
   fyllI:[
    ["Patientens ___ är illamående och yrsel.",["symtom","tecken","symtomet"],"Illamående och yrsel känner patienten själv. Det är flera symtom, och plural heter också symtom."],
@@ -154,7 +167,13 @@ const GRUPPER = [
    ["Patienten beskriver sina ___ för läkaren: huvudvärk och trötthet.",["symtom","symtomen","tecken"],"Huvudvärk och trötthet känner patienten. Efter ”sina” används obestämd form: sina symtom."],
    ["___ försvann när patienten fick smärtlindring. Hon har inte längre ont.",["Symtomet","Tecknet","Symtom"],"Smärta är något patienten känner. Det handlar om ett bestämt symtom, därför bestämd form: symtomet."],
    ["Ett lågt blodtryck kan vara ett ___ på uttorkning.",["tecken","symtom","tecknen"],"Blodtrycket mäter du. Efter ”ett” kommer obestämd form singular: ett tecken."],
-   ["Vid inspektion ser du ___ på trycksår: en rodnad som inte bleknar.",["tecken","symtom","tecknet"],"Rodnaden ser du. ”Tecken på” är ett vanligt uttryck."]
+   ["Vid inspektion ser du ___ på trycksår: en rodnad som inte bleknar.",["tecken","symtom","tecknet"],"Rodnaden ser du. ”Tecken på” är ett vanligt uttryck."],
+   ["Feber och förhöjt CRP är ___ på infektion.",["tecken","symtom","tecknet"],"Feber och CRP mäter man. Det är flera tecken, och plural heter också tecken."],
+   ["Patienten har inga ___ längre. Hon säger att hon känner sig helt frisk.",["symtom","tecken","symtomet"],"Det är patienten som berättar hur hon känner sig. Efter ”inga” används plural: symtom."],
+   ["Trötthet är ett vanligt ___ vid blodbrist.",["symtom","tecken","symtomen"],"Tröttheten känner patienten själv. Efter ”ett vanligt” kommer obestämd form singular."],
+   ["Du dokumenterar ___ på uttorkning: torra slemhinnor och mörk urin.",["tecken","symtom","tecknet"],"Torra slemhinnor och mörk urin ser du. ”Tecken på” är ett vanligt uttryck."],
+   ["Läkaren frågar hur länge ___ har funnits. Patienten svarar att det har gjort ont i en vecka.",["symtomen","tecknen","symtom"],"Smärtan beskriver patienten själv. Det handlar om bestämda symtom, därför bestämd form plural: symtomen."],
+   ["Det första ___ som du ser är att patienten har svårt att hitta orden.",["tecknet","symtomet","tecken"],"Du ser det själv. ”Det första” kräver bestämd form: tecknet."]
   ]},
  {id:"observera",
   ord:[["observera","lägga märke till","I vilken situation observerar någon?"],
@@ -171,7 +190,17 @@ const GRUPPER = [
    ["Du läser av blodtrycket: 92/58.",0,"Du mäter och läser av ett värde."],
    ["Utifrån NEWS-poängen avgör sjuksköterskan att läkaren ska kontaktas.",1,"Hon använder mätvärdena för att avgöra vad som behöver göras."],
    ["Du ser att patienten håller handen mot bröstet.",0,"Du ser något, men du säger inget om vad det betyder."],
-   ["Sjuksköterskan anser att smärtlindringen inte räcker.",1,"”Anser” betyder att hon tar ställning. Det är en bedömning."]
+   ["Sjuksköterskan anser att smärtlindringen inte räcker.",1,"”Anser” betyder att hon tar ställning. Det är en bedömning."],
+   ["Du hör att patienten hostar mer i kväll.",0,"Du lyssnar och lägger märke till en förändring."],
+   ["Sjuksköterskan avgör att såret behöver ses av en läkare.",1,"Hon avgör vad som ska hända. Det är en bedömning."],
+   ["Du väger patienten: 58 kilo.",0,"Du mäter och läser av ett värde."],
+   ["Sjuksköterskan kommer fram till att patienten har ont, trots att hon inte säger något.",1,"Hon drar en slutsats av det hon ser."],
+   ["Du ser att patienten grimaserar när hon vänder sig i sängen.",0,"Du ser något, men du drar ingen slutsats om vad det betyder."],
+   ["Läkaren avgör att patienten inte behöver antibiotika.",1,"Läkaren tar ställning till behandlingen."],
+   ["Du räknar hur många gånger patienten går på toaletten under natten.",0,"Du räknar. Vad det betyder avgör någon annan."],
+   ["Fysioterapeuten avgör att patienten kan börja gå med rollator.",1,"Fysioterapeuten avgör vad patienten klarar."],
+   ["Du lägger märke till att patienten inte har rört sitt kaffe.",0,"Du lägger märke till något och beskriver det."],
+   ["Sjuksköterskan tar ställning till om patienten behöver extra tillsyn i natt.",1,"”Tar ställning” betyder att hon avgör. Det är en bedömning."]
   ],
   fyllI:[
    ["Under natten ___ du att patienten är orolig och går upp flera gånger.",["observerar","bedömer","observera"],"Du lägger märke till hur patienten gör. Presens: du observerar."],
@@ -179,7 +208,13 @@ const GRUPPER = [
    ["Du skriver ner dina ___: patienten har ätit lite och druckit två glas vatten.",["observationer","bedömningar","observerar"],"Du skriver vad du har sett, inte vad det betyder. Efter ”dina” behövs ett substantiv i plural."],
    ["Läkaren ___ att patienten kan åka hem i morgon.",["bedömer","observerar","bedöma"],"Att avgöra om patienten kan åka hem är en bedömning. Presens: bedömer."],
    ["Igår ___ du att patienten haltade på vänster ben.",["observerade","bedömde","observerar"],"Du såg hur patienten gick. ”Igår” kräver preteritum: observerade."],
-   ["Sjuksköterskan ___ igår att såret läker som det ska.",["bedömde","observerade","bedömer"],"”Läker som det ska” är en slutsats. ”Igår” kräver preteritum: bedömde."]
+   ["Sjuksköterskan ___ igår att såret läker som det ska.",["bedömde","observerade","bedömer"],"”Läker som det ska” är en slutsats. ”Igår” kräver preteritum: bedömde."],
+   ["Det är viktigt att du ___ hur patienten andas under natten.",["observerar","bedömer","observation"],"Du ska se och lyssna, inte dra slutsatser. Efter ”att du” behövs ett verb i presens."],
+   ["Utifrån smärtskalan gör sjuksköterskan en ___ av om patienten behöver mer smärtlindring.",["bedömning","observation","bedöma"],"Att avgöra om det behövs mer smärtlindring är en bedömning. Efter ”en” behövs ett substantiv."],
+   ["Du ska ___ patientens allmäntillstånd och säga till om något förändras.",["observera","bedöma","observerar"],"Du ska lägga märke till förändringar och säga till. Efter ”ska” används grundformen: observera."],
+   ["Att avgöra om patienten behöver läkare är sjuksköterskans ___.",["bedömning","observation","bedömer"],"Att avgöra är att bedöma. Efter ”sjuksköterskans” behövs ett substantiv."],
+   ["Efter samtalet ___ sjuksköterskan att patienten var redo att flytta hem.",["bedömde","observerade","bedömer"],"Hon avgjorde om patienten var redo. Det har redan hänt, därför preteritum: bedömde."],
+   ["Du har ___ att patienten har svårt att hålla i skeden.",["observerat","bedömt","observera"],"Du har sett det själv. Efter ”har” används supinum: observerat."]
   ]},
  {id:"framja",
   ord:[["främja","hjälpa, gynna","Vilken åtgärd främjar hälsan?"],
@@ -196,7 +231,17 @@ const GRUPPER = [
    ["Ni går ut i solen en stund varje dag, eftersom det ger patienten energi.",0,"Målet är att stärka det friska: energi och humör."],
    ["Patienten vaccineras mot influensa.",1,"Vaccinet ska hindra att hon blir sjuk."],
    ["Du ger beröm när patienten klarar att klä på sig själv, så att hon känner sig stark.",0,"Berömmet stärker självkänsla och självständighet."],
-   ["Du påminner patienten om att dricka så att hon inte blir uttorkad.",1,"Målet är att stoppa uttorkning."]
+   ["Du påminner patienten om att dricka så att hon inte blir uttorkad.",1,"Målet är att stoppa uttorkning."],
+   ["Du dukar fint och sätter på musik vid middagen, så att patienten får lust att äta och trivs.",0,"Målet är att stärka matlusten och trivseln."],
+   ["Patienten får sjunga i kören på boendet, eftersom det gör henne glad.",0,"Sången stärker glädjen. Det är främjande."],
+   ["Ni planterar blommor på balkongen tillsammans, eftersom patienten tycker om att pyssla med växter.",0,"Målet är att stärka glädje och mening i vardagen."],
+   ["Ni går en promenad varje dag så att patienten får frisk luft och känner sig piggare.",0,"Målet är att stärka orken och humöret."],
+   ["Du hjälper patienten att ringa sitt barnbarn varje söndag, eftersom samtalen gör henne glad.",0,"Kontakten med familjen stärker välbefinnandet."],
+   ["Personalen ordnar gympa till musik så att de boende får mer ork och glädje i vardagen.",0,"Målet är att stärka det friska."],
+   ["Du torkar upp vatten på golvet direkt så att ingen halkar.",1,"Du tar bort en risk för att hindra ett fall."],
+   ["Du smörjer patientens torra fötter så att huden inte spricker.",1,"Målet är att hindra sår."],
+   ["Patienten får ett extra mellanmål på kvällen så att hon inte går ner i vikt.",1,"Målet är att hindra undernäring."],
+   ["Du använder handskar och förkläde när du hjälper en patient med magsjuka.",1,"Skyddet hindrar att smittan sprids."]
   ],
   fyllI:[
    ["Patienten får kompressionsstrumpor i ___ syfte.",["förebyggande","främjande","förebygga"],"Strumporna ska hindra blodpropp. ”I förebyggande syfte” är ett fast uttryck."],
@@ -204,7 +249,13 @@ const GRUPPER = [
    ["Fysisk aktivitet ___ både den fysiska och den psykiska hälsan.",["främjar","förebygger","främja"],"Hälsa är något bra. Man främjar det bra. Man kan inte förebygga hälsa."],
    ["Ni ___ fall genom att ha bra belysning i korridoren.",["förebygger","främjar","förebyggde"],"Fall är något dåligt som ni vill hindra. Presens: förebygger."],
    ["Ett gott socialt nätverk ___ välbefinnandet.",["främjar","förebygger","främjade"],"Välbefinnande är något bra som stärks. Presens: främjar."],
-   ["Målet med kursen är att deltagarna ska må bättre och få mer energi. Det är ___ arbete.",["hälsofrämjande","förebyggande","främja"],"Kursen ska stärka det friska. Det kallas hälsofrämjande arbete."]
+   ["Målet med kursen är att deltagarna ska må bättre och få mer energi. Det är ___ arbete.",["hälsofrämjande","förebyggande","främja"],"Kursen ska stärka det friska. Det kallas hälsofrämjande arbete."],
+   ["Hembesöket görs i ___ syfte. Ni letar efter saker som patienten kan snubbla på.",["förebyggande","främjande","förebygga"],"Ni vill hindra fall. ”I förebyggande syfte” är ett fast uttryck."],
+   ["Musik och sång kan ___ välbefinnandet hos personer med demens.",["främja","förebygga","främjar"],"Välbefinnande är något bra. Efter ”kan” används grundformen: främja."],
+   ["Basala hygienrutiner ___ att smitta sprids.",["förebygger","främjar","förebygga"],"Smitta är något dåligt som ska hindras. Presens: förebygger."],
+   ["Att ___ hälsa handlar om att stärka det som får människor att må bra.",["främja","förebygga","främjar"],"Man stärker det friska. Efter ”att” används grundformen."],
+   ["Igår ___ ni trycksår genom att lägga patienten på en tryckavlastande madrass.",["förebyggde","främjade","förebygger"],"Trycksår ska hindras. ”Igår” kräver preteritum: förebyggde."],
+   ["Kursen i matlagning har ett ___ syfte. Deltagarna ska få mer glädje och energi i vardagen.",["hälsofrämjande","förebyggande","främjar"],"Målet är att stärka det friska. Det kallas hälsofrämjande."]
   ]},
  {id:"rapportera",
   ord:[["rapportera","säga till","I vilken situation rapporterar du?"],
@@ -221,7 +272,17 @@ const GRUPPER = [
    ["Du fyller i vätskelistan med hur mycket patienten har druckit.",1,"Vätskelistan är en del av patientens dokumentation."],
    ["Du säger till läkaren att såret luktar illa.",0,"Du berättar för en kollega."],
    ["Du skriver att patienten själv valde att duscha på kvällen.",1,"Det du skriver ner om patienten är dokumentation."],
-   ["Under ronden berättar du att patienten har sovit dåligt.",0,"Du berättar för kollegorna. Det är muntligt."]
+   ["Under ronden berättar du att patienten har sovit dåligt.",0,"Du berättar för kollegorna. Det är muntligt."],
+   ["Du ringer sjuksköterskan och säger att patienten har fått ett blåmärke.",0,"Du berättar för en kollega. Det är rapport."],
+   ["Du skriver i journalen hur patienten har sovit under natten.",1,"Det du skriver i journalen är dokumentation."],
+   ["Du stannar sjuksköterskan i korridoren och berättar att patienten inte vill äta.",0,"Du säger det muntligt till en kollega."],
+   ["Du skriver in patientens blodtryck i journalen.",1,"Du skriver in ett värde i journalen."],
+   ["Vid morgonmötet berättar du att patienten var orolig under kvällen.",0,"Du berättar för kollegorna. Det är muntligt."],
+   ["Du fyller i en lista över hur många gånger patienten har kissat.",1,"Listan är en del av patientens dokumentation."],
+   ["Du larmar och säger till sjuksköterskan att patienten har svårt att andas.",0,"Du säger det direkt till en kollega."],
+   ["Du skriver i genomförandeplanen att patienten vill duscha på morgonen.",1,"Genomförandeplanen är skriftlig. Det är dokumentation."],
+   ["I telefon berättar du för sjuksköterskan att patienten har ont i bröstet.",0,"Du berättar för en kollega. Det är rapport."],
+   ["Du skriver i journalen vad patienten åt och drack till lunch.",1,"Det du skriver ner om patienten är dokumentation."]
   ],
   fyllI:[
    ["Vid passbytet ger du ___ till kvällspersonalen.",["rapport","dokumentation","rapportera"],"Vid passbytet berättar man muntligt. Det heter att ge rapport."],
@@ -229,7 +290,13 @@ const GRUPPER = [
    ["Du ___ direkt till sjuksköterskan att patienten har ramlat.",["rapporterar","dokumenterar","rapport"],"Du säger det till en kollega, direkt. Presens: rapporterar."],
    ["God ___ gör att nästa person kan läsa vad som har hänt.",["dokumentation","rapport","dokumentera"],"Det man kan läsa är skrivet. Efter ”god” behövs ett substantiv: dokumentation."],
    ["Igår ___ du till sjuksköterskan att patienten hade fått utslag.",["rapporterade","dokumenterade","rapporterar"],"”Till sjuksköterskan” visar att du berättade för en kollega. ”Igår” kräver preteritum: rapporterade."],
-   ["Det som inte är ___ har inte hänt, brukar man säga i vården.",["dokumenterat","rapporterat","dokumentera"],"Uttrycket handlar om journalen. Efter ”är” används formen dokumenterat."]
+   ["Det som inte är ___ har inte hänt, brukar man säga i vården.",["dokumenterat","rapporterat","dokumentera"],"Uttrycket handlar om journalen. Efter ”är” används formen dokumenterat."],
+   ["Du ___ till sjuksköterskan när något förändras hos patienten.",["rapporterar","dokumenterar","rapport"],"Du säger det till en kollega. Presens: rapporterar."],
+   ["Allt som är viktigt för vården ska ___ i journalen.",["dokumenteras","rapporteras","dokumentera"],"Det som ska stå i journalen dokumenteras."],
+   ["Innan du går hem ger du en muntlig ___ till nattpersonalen.",["rapport","dokumentation","rapportera"],"En muntlig överlämning heter rapport."],
+   ["Igår ___ du i journalen att patienten hade feber.",["dokumenterade","rapporterade","dokumenterar"],"Det skrevs i journalen. ”Igår” kräver preteritum: dokumenterade."],
+   ["Sjuksköterskan läser din ___ för att se vad som hände under natten.",["dokumentation","rapport","dokumenterar"],"Det man läser är skrivet. Efter ”din” behövs ett substantiv: dokumentation."],
+   ["Du har ___ till sjuksköterskan att patienten har ramlat. Nu ska du också skriva en avvikelse.",["rapporterat","dokumenterat","rapportera"],"Du har berättat för en kollega. Efter ”har” används supinum: rapporterat."]
   ]},
  {id:"kurativ",
   ord:[["kurativ","botande","Vilken behandling är kurativ?"],
@@ -246,7 +313,17 @@ const GRUPPER = [
    ["Patienten får cellgifter för att bli helt frisk från sin leukemi.",0,"Målet är att bota."],
    ["Patienten med svår hjärtsvikt får syrgas och lugn omkring sig så att andnöden känns mindre.",1,"Målet är att lindra andnöden."],
    ["Gallstenarna opereras bort så att besvären försvinner.",0,"Orsaken tas bort och patienten blir frisk."],
-   ["Patienten får läkemedel mot illamående under sina sista veckor.",1,"Målet är att lindra under den sista tiden."]
+   ["Patienten får läkemedel mot illamående under sina sista veckor.",1,"Målet är att lindra under den sista tiden."],
+   ["Patienten opereras för blindtarmsinflammation.",0,"Blindtarmen tas bort och patienten blir frisk."],
+   ["Patienten med ALS får hjälp med andningen på natten så att hon kan sova bättre.",1,"ALS går inte att bota. Målet är bättre sömn och mindre andnöd."],
+   ["Patienten får en ny höftled efter en höftfraktur, så att hon kan gå igen.",0,"Målet är att höften ska fungera igen."],
+   ["Patienten i livets slutskede får hjälp att byta läge så att hon ligger bekvämt.",1,"Målet är att hon ska ha det så bra som möjligt."],
+   ["Patienten får penicillin mot halsfluss.",0,"Penicillinet ska ta bort infektionen."],
+   ["Patienten med obotlig cancer får kortison så att hon får bättre aptit och mer ork.",1,"Cancern går inte att bota. Målet är bättre livskvalitet."],
+   ["En hudtumör opereras bort helt.",0,"Hela tumören tas bort för att patienten ska bli frisk."],
+   ["Patienten i livets slutskede får ångestdämpande läkemedel så att hon känner sig lugn.",1,"Målet är att lindra oron under den sista tiden."],
+   ["Patienten får strålning för att bota en tumör i bröstet.",0,"Målet är att bota. Strålning kan alltså vara både kurativ och palliativ."],
+   ["Patienten med obotlig lungsjukdom får en fläkt vid sängen som minskar känslan av andnöd.",1,"Målet är att lindra andnöden."]
   ],
   fyllI:[
    ["Operationen görs i ___ syfte. Målet är att patienten ska bli frisk.",["kurativt","palliativt","kurativ"],"Målet är att bota. ”Syfte” är ett ett-ord, därför kurativt."],
@@ -254,7 +331,13 @@ const GRUPPER = [
    ["På avdelningen för ___ vård vårdas patienter i livets slutskede.",["palliativ","kurativ","palliativa"],"Vård i livets slutskede är palliativ. ”Vård” är ett en-ord: palliativ vård."],
    ["När cancern har spridit sig ändras behandlingen från kurativ till ___.",["palliativ","kurativ","palliativt"],"När det inte längre går att bota blir målet att lindra."],
    ["Antibiotika mot en urinvägsinfektion är en ___ behandling.",["kurativ","palliativ","kurativa"],"Antibiotikan botar infektionen. ”En behandling” ger formen kurativ."],
-   ["Strålningen ges i ___ syfte. Den ska minska smärtan från metastasen.",["palliativt","kurativt","palliativ"],"Målet är att minska smärtan, inte att bota. ”Syfte” ger formen palliativt."]
+   ["Strålningen ges i ___ syfte. Den ska minska smärtan från metastasen.",["palliativt","kurativt","palliativ"],"Målet är att minska smärtan, inte att bota. ”Syfte” ger formen palliativt."],
+   ["Målet med ___ vård är god livskvalitet, inte att bota.",["palliativ","kurativ","palliativt"],"Lindring och livskvalitet är målet i palliativ vård. ”Vård” är ett en-ord."],
+   ["Behandlingen är ___. Patienten förväntas bli helt frisk.",["kurativ","palliativ","kurativt"],"Målet är att bota. ”Behandlingen” är ett en-ord: kurativ."],
+   ["Läkaren berättar att det inte längre finns någon ___ behandling. Nu ska vården inriktas på lindring.",["kurativ","palliativ","kurativa"],"Det finns ingen behandling som kan bota. ”Någon behandling” ger formen kurativ."],
+   ["Smärtlindringen ges i ___ syfte, eftersom sjukdomen inte kan botas.",["palliativt","kurativt","palliativ"],"Målet är lindring. ”Syfte” är ett ett-ord: palliativt."],
+   ["Många ___ behandlingar, till exempel operationer, ska ta bort orsaken till sjukdomen.",["kurativa","palliativa","kurativ"],"Att ta bort orsaken är att bota. ”Behandlingar” står i plural: kurativa."],
+   ["I det ___ skedet är det viktigt att även de närstående får stöd.",["palliativa","kurativa","palliativt"],"Stöd till närstående är en viktig del av palliativ vård. Efter ”det” används formen palliativa."]
   ]},
  {id:"indikation",
   ord:[["indikation","skäl att göra","I vilken situation är det markerade en indikation?"],
@@ -271,7 +354,17 @@ const GRUPPER = [
    ["Patienten har <mark>högt blodtryck</mark>. Läkaren skriver ut blodtryckssänkande läkemedel.",0,"Det höga blodtrycket är skälet till behandlingen."],
    ["Patienten har <mark>mycket lågt blodtryck</mark>. Läkaren funderar på blodtryckssänkande läkemedel.",1,"Blodtrycket är redan lågt. Det talar emot att sänka det mer."],
    ["Patienten har <mark>nyss ätit</mark>. Hon ska sövas för en planerad operation.",1,"Man ska fasta före narkos. Att hon har ätit talar emot att söva nu."],
-   ["Patienten har <mark>urinstämma</mark>. Sjuksköterskan sätter en kateter.",0,"Urinstämman är skälet till katetern."]
+   ["Patienten har <mark>urinstämma</mark>. Sjuksköterskan sätter en kateter.",0,"Urinstämman är skälet till katetern."],
+   ["Patienten har <mark>svårt att andas och låg saturation</mark>. Hon får syrgas.",0,"Den låga saturationen är skälet till syrgasen."],
+   ["Patienten har <mark>en pacemaker</mark>. Läkaren funderar på en undersökning med magnetkamera.",1,"Magnetkameran kan störa pacemakern. Det talar emot."],
+   ["Patienten har <mark>ett djupt sår som blöder kraftigt</mark>. Hon får ett tryckförband.",0,"Blödningen är skälet till tryckförbandet."],
+   ["Patienten har <mark>svårt att svälja</mark>. Sjuksköterskan funderar på att ge en stor tablett.",1,"Tabletten kan fastna i halsen. Det talar emot."],
+   ["Patienten har <mark>hög feber</mark>. Hon får febernedsättande läkemedel.",0,"Febern är skälet till läkemedlet."],
+   ["Patienten <mark>tar redan blodförtunnande läkemedel</mark>. Hon ska få en spruta i muskeln.",1,"Sprutan kan ge en blödning i muskeln. Det talar emot."],
+   ["Patienten har <mark>ont i halsen och vita beläggningar på mandlarna</mark>. Läkaren tar ett snabbtest för streptokocker.",0,"Besvären i halsen är skälet till testet."],
+   ["Patienten har <mark>en infektion i huden på låret</mark>. Sjuksköterskan funderar på att ge en spruta just där.",1,"Man ska inte sticka i infekterad hud. Det talar emot."],
+   ["Patienten har <mark>en blodpropp i benet</mark>. Hon får blodförtunnande läkemedel.",0,"Blodproppen är skälet till behandlingen."],
+   ["Patienten <mark>kräks hela tiden</mark>. Läkaren funderar på att ge läkemedlet som tablett.",1,"Tabletten stannar inte kvar i magen. Det talar emot."]
   ],
   fyllI:[
    ["Bröstsmärta är en ___ för EKG.",["indikation","kontraindikation","indicerad"],"Bröstsmärta är ett skäl att ta EKG. Efter ”en” behövs ett substantiv: indikation."],
@@ -279,7 +372,13 @@ const GRUPPER = [
    ["Läkemedlet är ___ vid graviditet och får inte ges.",["kontraindicerat","indicerat","kontraindikation"],"”Får inte ges” visar att det talar emot. ”Läkemedlet” är ett ett-ord: kontraindicerat."],
    ["Vid misstänkt stroke är en akut röntgen av hjärnan ___.",["indicerad","kontraindicerad","indikation"],"Misstänkt stroke är ett skäl att röntga. ”En röntgen” är ett en-ord: indicerad."],
    ["Blodförtunnande läkemedel är ___ när patienten har ett blödande magsår.",["kontraindicerade","indicerade","kontraindikation"],"Blödningen talar emot. ”Läkemedel” står i plural: kontraindicerade."],
-   ["I remissen skriver läkaren vilken ___ som finns för undersökningen, alltså varför den ska göras.",["indikation","kontraindikation","indicerad"],"Varför något ska göras är indikationen."]
+   ["I remissen skriver läkaren vilken ___ som finns för undersökningen, alltså varför den ska göras.",["indikation","kontraindikation","indicerad"],"Varför något ska göras är indikationen."],
+   ["Låg saturation är en ___ för syrgas.",["indikation","kontraindikation","indicerad"],"Låg saturation är ett skäl att ge syrgas. Efter ”en” behövs ett substantiv."],
+   ["Allergi mot läkemedlet är en tydlig ___.",["kontraindikation","indikation","kontraindicerad"],"Allergi är ett skäl att låta bli. Efter ”en tydlig” behövs ett substantiv."],
+   ["Röntgen är ___ när man misstänker att patienten har brutit höften.",["indicerad","kontraindicerad","indikation"],"Misstanken om fraktur är ett skäl att röntga. ”Röntgen” är ett en-ord: indicerad."],
+   ["Behandlingen är ___ till barn och får inte användas till dem.",["kontraindicerad","indicerad","kontraindikation"],"”Får inte användas” visar att det talar emot. ”Behandlingen” är ett en-ord: kontraindicerad."],
+   ["Läkaren kontrollerar att det inte finns några ___ innan patienten får läkemedlet.",["kontraindikationer","indikationer","kontraindicerad"],"Innan man ger ett läkemedel kontrollerar man att inget talar emot. Efter ”några” används plural."],
+   ["Vilka ___ finns för att sätta en urinkateter? Ett exempel är urinstämma.",["indikationer","kontraindikationer","indicerad"],"Urinstämma är ett skäl att sätta kateter. Efter ”vilka” används plural."]
   ]}
 ];
 
@@ -289,7 +388,8 @@ const LAGEN = {
   3:{namn:"Välj exemplet", beskr:"Läs ordet och välj den situation som passar."}
 };
 const POANG_HEL = 2, POANG_LEDTRAD = 1;
-const ANTAL_BLANDAT = 12, ANTAL_LAGE3 = 6;
+const SORTERA_PER_RUNDA = 10, FYLLI_PER_RUNDA = 6, ANTAL_LAGE3 = 6, ANTAL_BLANDAT = 12;
+// En runda drar ett urval ur gruppen. Uppgifter som eleven inte har sett på längst tid kommer först.
 const FEL_FOR_KLARAD = 1;   // högst så här många fel på första försöket för att klara en grupp
 const TILLBAKA_EFTER = 4;   // ett felsvar kommer tillbaka så här många uppgifter senare
 
@@ -312,6 +412,24 @@ const framsteg = {
   senasteLage(){ try{ return +localStorage.getItem("skillnaden-lage")||1 }catch(e){ return 1 } },
   sparaLage(l){ try{ localStorage.setItem("skillnaden-lage",String(l)) }catch(e){} }
 };
+
+/* Vilka uppgifter eleven har sett, så att samma uppgifter inte kommer i varje runda */
+const SETT = "skillnaden-sett";
+let sett = {n:0,k:{}};
+try{ const d=JSON.parse(localStorage.getItem(SETT)); if(d&&d.k) sett=d }catch(e){}
+function sparaSett(){ try{ localStorage.setItem(SETT,JSON.stringify(sett)) }catch(e){} }
+function valj(lista,n,nyckel){
+  const ordning = shuffle(lista).sort((a,b)=>(sett.k[nyckel(a)]??-1)-(sett.k[nyckel(b)]??-1));
+  const ut = ordning.slice(0,n);
+  ut.forEach(x=>sett.k[nyckel(x)]=sett.n);
+  return ut;
+}
+const n1 = it=>"1:"+it[0], n2 = it=>"2:"+it[0], n3 = it=>"3:"+it[0];
+function valjBalanserat(lista,n,nyckel){
+  const a=valj(lista.filter(it=>it[1]===0),Math.ceil(n/2),nyckel);
+  const b=valj(lista.filter(it=>it[1]===1),n-a.length,nyckel);
+  return shuffle(a.concat(b));
+}
 
 /* Uppläsning: webbläsarens egen svenska röst, samma val som i Ett pass */
 let rost = null;
@@ -344,27 +462,21 @@ function uppgiftLage3(g,t,ratt,fel){
     alt, rattOrd:g.ord[t][0], varfor:ratt[2], item:ratt};
 }
 function lage3For(g,n){
-  const ut=[]; const anv=new Set();
-  for(let k=0;k<n;k++){
-    const t=k%2;
-    const kand=g.sortera.filter(it=>it[1]===t&&!anv.has(it));
-    const ratt=kand.length?pick(kand,1)[0]:pick(g.sortera.filter(it=>it[1]===t),1)[0];
-    anv.add(ratt);
-    const fel=pick(g.sortera.filter(it=>it[1]!==t),2);
-    ut.push(uppgiftLage3(g,t,ratt,fel));
-  }
-  return shuffle(ut);
+  // Rätt situation väljs bland dem eleven inte har sett på länge. De två felaktiga lottas, så kombinationen blir ny varje gång.
+  return valjBalanserat(g.sortera,n,n3).map(ratt=>
+    uppgiftLage3(g,ratt[1],ratt,pick(g.sortera.filter(it=>it[1]!==ratt[1]),2)));
 }
 function byggRunda(lage,id){
   if(id==="mix"){
     const grupper=GRUPPER.filter(g=>!framsteg.last(lage,g.id));
-    if(lage===1) return pick(grupper.flatMap(g=>g.sortera.map(it=>uppgiftLage1(g,it))),ANTAL_BLANDAT);
-    if(lage===2) return pick(grupper.flatMap(g=>g.fyllI.map(it=>uppgiftLage2(g,it))),ANTAL_BLANDAT);
-    return pick(grupper.flatMap(g=>lage3For(g,4)),ANTAL_BLANDAT);
+    const alla = lage===2 ? grupper.flatMap(g=>g.fyllI.map(it=>({g,it}))) : grupper.flatMap(g=>g.sortera.map(it=>({g,it})));
+    const nyckel = lage===1?n1:lage===2?n2:n3;
+    return valj(alla,ANTAL_BLANDAT,x=>nyckel(x.it)).map(({g,it})=>
+      lage===1?uppgiftLage1(g,it):lage===2?uppgiftLage2(g,it):uppgiftLage3(g,it[1],it,pick(g.sortera.filter(x=>x[1]!==it[1]),2)));
   }
   const g=GRUPPER.find(x=>x.id===id);
-  if(lage===1) return shuffle(g.sortera.map(it=>uppgiftLage1(g,it)));
-  if(lage===2) return shuffle(g.fyllI.map(it=>uppgiftLage2(g,it)));
+  if(lage===1) return valjBalanserat(g.sortera,SORTERA_PER_RUNDA,n1).map(it=>uppgiftLage1(g,it));
+  if(lage===2) return valj(g.fyllI,FYLLI_PER_RUNDA,n2).map(it=>uppgiftLage2(g,it));
   return lage3For(g,ANTAL_LAGE3);
 }
 
@@ -391,7 +503,7 @@ function meny(){
     <div class="groups">
       ${GRUPPER.map(g=>{
         const last=framsteg.last(L,g.id), klar=framsteg.klarad(L,g.id);
-        const antal = L===1?g.sortera.length:L===2?g.fyllI.length:ANTAL_LAGE3;
+        const antal = L===1?Math.min(SORTERA_PER_RUNDA,g.sortera.length):L===2?Math.min(FYLLI_PER_RUNDA,g.fyllI.length):ANTAL_LAGE3;
         return `<button class="g" data-id="${g.id}" ${last?"disabled":""}>
           <span class="pair">${g.ord.map(o=>o[0]).join(" / ")}</span>
           <span class="meta"><span>${last?`Klara läge ${L-1} först`:antal+" uppgifter"}</span>${klar?'<span class="chip">Klarad</span>':""}</span>
@@ -407,7 +519,9 @@ function meny(){
 
 /* ---------- Spel ---------- */
 function starta(lage,id){
+  sett.n++;
   const ko=byggRunda(lage,id);
+  sparaSett();
   S={lage,id,ko,pos:0,antal:ko.length,poang:0,max:ko.length*POANG_HEL,forsta:0,missade:[],fel:new Set(),ledtrad:false,svarat:false,ordning:null};
   visaUppgift();
 }
